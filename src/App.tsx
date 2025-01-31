@@ -1,9 +1,9 @@
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import PrivateRoutes from "./routes/PrivateRoutes";
+
 function App() {
-  return (
-    <>
-      <h1 className="text-5xl">Hello my name is aman</h1>
-    </>
-  );
+  const router = createBrowserRouter([PrivateRoutes()]);
+  return <RouterProvider router={router} />;
 }
 
 export default App;
