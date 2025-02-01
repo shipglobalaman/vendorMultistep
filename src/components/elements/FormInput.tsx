@@ -1,5 +1,4 @@
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
@@ -7,8 +6,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Control, FieldValues, Path } from "react-hook-form";
 
-export const FormInput = ({ control, name, label, className }) => {
+interface FormInputProps<T extends FieldValues> {
+  control: Control<T>;
+  name: Path<T>;
+  label: string;
+  className?: string;
+}
+export const FormInput = <T extends FieldValues>({
+  control,
+  name,
+  label,
+  className,
+}: FormInputProps<T>) => {
   return (
     <FormField
       control={control}
