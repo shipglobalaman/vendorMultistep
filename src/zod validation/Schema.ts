@@ -22,7 +22,7 @@ export const formSchema = z.object({
   billingMobile: z.string().min(10, "Mobile number must be at least 10 digits"),
   billingAlternateMobile: z.string().optional(),
   billingEmail: z.string().email("Invalid email address"),
-  billingCountry: z.string().min(1, "Country is required"),
+  billingCountry: z.string(),
   billingAddress1: z.string().min(1, "Address 1 is required"),
   billingLandmark: z.string().optional(),
   billingAddress2: z.string().min(1, "Address 2 is required"),
