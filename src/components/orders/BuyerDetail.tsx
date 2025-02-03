@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { formSchema } from "@/zod validation/Schema";
-import * as z from "zod";
+import type * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -37,45 +37,30 @@ import {
 } from "@/components/ui/form";
 import DashboardPage from "@/layouts/DashboardPage";
 import { FormInput } from "../elements/FormInput";
+import { useCountries, useStates } from "../orders/CountryApi";
 
 const addresses = [
   {
-    value: "office-1",
+    value:
+      "Head OFFICE, mahipalpur, Indira Park, South West Delhi, Delhi-110045-8392328932",
     label:
       "Head OFFICE, mahipalpur, Indira Park, South West Delhi, Delhi-110045-8392328932",
   },
 ];
-interface FormValues {
-  shippingFirstName: string;
-  shippingLastName: string;
-  shippingMobile: string;
-  shippingAlternateMobile: string;
-  shippingEmail: string;
-  shippingCountry: string;
-  shippingAddress1: string;
-  shippingLandmark: string;
-  shippingCity: string;
-  shippingState: string;
-  shippingPincode: string;
-  billingFirstName: string;
-  billingLastName: string;
-  billingMobile: string;
-  billingAlternateMobile: string;
-  billingEmail: string;
-  billingCountry: string;
-  billingAddress1: string;
-  billingLandmark: string;
-  billingCity: string;
-  billingState: string;
-  billingPincode: string;
-}
+
 interface BuyerDetailProps {
   step: number;
   setStep: React.Dispatch<React.SetStateAction<number>>;
 }
+
 export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
-  const [checked, setChecked] = useState(true);
   const [open, setOpen] = useState(false);
+  const [open1, setOpen1] = useState(false);
+  const [checked, setChecked] = useState(true);
+  const { countries, loading: countriesLoading } = useCountries();
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const { states, loading: statesLoading } = useStates(selectedCountry);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -107,17 +92,19 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
       billingState: "",
     },
   });
+
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    console.log(values);
+    localStorage.setItem("formData", JSON.stringify(values));
     setStep(step + 1);
   }
+
   return (
     <DashboardPage>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="max-w-3xl">
-            <div className="mb-8">
+            <div className="px-2 space-y-5 mb-12">
               <div className="flex items-center gap-1">
                 <h2 className="text-xl font-semibold">Select Pickup Address</h2>
                 <span className="text-red-500">*</span>
@@ -134,7 +121,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                             variant="outline"
                             role="combobox"
                             aria-expanded={open}
-                            className="w-full mt-2 justify-between h-auto py-3 text-left font-normal">
+                            className="w-full mt-2 justify-between h-auto py-3 text-left font-normal md:text-wrap bg-gray-50">
                             {field.value
                               ? addresses.find(
                                   (address) => address.value === field.value
@@ -182,272 +169,381 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 )}
               />
             </div>
-
+            <hr />
             <div className="mt-12">
               <h2 className="text-xl font-semibold mb-6">
                 Buyer Shipping Details
               </h2>
               <div className="md:grid grid-cols-3 gap-6">
                 <FormInput
+                  key="shippingFirstName"
                   control={form.control}
                   name="shippingFirstName"
                   label="First Name"
-                  className=""
                 />
                 <FormInput
+                  key="shippingLastName"
                   control={form.control}
                   name="shippingLastName"
                   label="Last Name"
-                  className=""
                 />
                 <FormInput
+                  key="shippingMobile"
                   control={form.control}
                   name="shippingMobile"
                   label="Mobile No."
-                  className=""
                 />
                 <FormInput
+                  key="shippingAlternateMobile"
                   control={form.control}
                   name="shippingAlternateMobile"
                   label="Alternate Mobile No."
-                  className=""
                 />
                 <FormInput
+                  key="shippingEmail"
                   control={form.control}
                   name="shippingEmail"
                   label="Email Id"
                   className="col-span-2"
                 />
               </div>
-              <div className="mt-6">
-                <FormField
-                  control={form.control}
-                  name="shippingCountry"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="india">India (IND)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="mt-6 grid md:grid-cols-2 gap-6">
-                <FormInput
-                  control={form.control}
-                  name="shippingAddress1"
-                  label="Address 1"
-                  className=""
-                />
-                <FormInput
-                  control={form.control}
-                  name="shippingLandmark"
-                  label="Landmark"
-                  className=""
-                />
-              </div>
-              <div className="space-y-2 mt-6">
-                <FormInput
-                  control={form.control}
-                  name="shippingAddress2"
-                  label="Address 2"
-                  className=""
-                />
-              </div>
-              <div className="grid md:grid-cols-3 gap-6 mt-6">
-                <FormInput
-                  control={form.control}
-                  name="shippingPincode"
-                  label="Pincode"
-                  className=""
-                />
-                <FormInput
-                  control={form.control}
-                  name="shippingCity"
-                  label="City"
-                  className=""
-                />
-                <FormField
-                  control={form.control}
-                  name="shippingState"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>State</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a state" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="up">UP</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
             </div>
-            <div className="mt-12">
+            <div className="mt-6">
               <FormField
                 control={form.control}
-                name="sameAsBilling"
+                name="shippingCountry"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
                     <FormControl>
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={(value) => {
-                          setChecked(value as boolean);
-                          field.onChange(value);
-                          if (value) {
-                            Object.keys(form.getValues()).forEach((key) => {
-                              if (key.startsWith("shipping")) {
-                                const billingKey = key.replace(
-                                  "shipping",
-                                  "billing"
-                                ) as keyof FormValues;
-                                form.setValue(
-                                  billingKey,
-                                  form.getValues(key as keyof FormValues)
-                                );
-                              }
-                            });
-                          }
-                        }}
-                      />
+                      <Popover open={open1} onOpenChange={setOpen1}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={open1}
+                            className="w-full mt-2 justify-between h-auto py-3 text-left font-normal md:text-wrap bg-gray-50">
+                            {countriesLoading
+                              ? "Loading..."
+                              : countries.find(
+                                  (country) => country.code === field.value
+                                )?.name || "Select Country"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
+                          <Command>
+                            <CommandInput placeholder="Search country..." />
+                            <CommandList>
+                              {countriesLoading ? (
+                                <CommandEmpty>
+                                  Loading countries...
+                                </CommandEmpty>
+                              ) : (
+                                <>
+                                  <CommandEmpty>No country found.</CommandEmpty>
+                                  <CommandGroup>
+                                    {countries.map((country) => (
+                                      <CommandItem
+                                        key={country.code}
+                                        value={country.code}
+                                        onSelect={() => {
+                                          field.onChange(country.code);
+                                          setOpen1(false);
+                                          setSelectedCountry(country.code);
+                                        }}>
+                                        <Check
+                                          className={cn(
+                                            "mr-2 h-4 w-4",
+                                            field.value === country.code
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          )}
+                                        />
+                                        {country.name}
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </>
+                              )}
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
                     </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Shipping & Billing Address are same</FormLabel>
-                    </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
-            <div className={checked ? "hidden" : "mt-12"}>
-              <h2 className="text-xl font-semibold mb-6">
-                Buyer Billing Details
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <FormInput
-                  control={form.control}
-                  name="billingFirstName"
-                  label="First Name"
-                  className=""
-                />
-                <FormInput
-                  control={form.control}
-                  name="billingLastName"
-                  label="Last Name"
-                  className=""
-                />
-                <FormInput
-                  control={form.control}
-                  name="billingMobile"
-                  label="Mobile No."
-                  className=""
-                />
-              </div>
-              <div className="mt-6">
-                <FormField
-                  control={form.control}
-                  name="billingCountry"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Country</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        disabled={form.watch("sameAsBilling")}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a country" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="india">India (IND)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="mt-6 grid grid-cols-2 gap-6">
-                <FormInput
-                  control={form.control}
-                  name="billingAddress1"
-                  label="Address 1"
-                  className=""
-                />
-                <FormInput
-                  control={form.control}
-                  name="billingLandmark"
-                  label="Landmark"
-                  className=""
-                />
-              </div>
-              <div className="space-y-2 mt-6">
-                <FormInput
-                  control={form.control}
-                  name="billingAddress2"
-                  label="Address 2"
-                  className=""
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-6 mt-6">
-                <FormInput
-                  control={form.control}
-                  name="billingPincode"
-                  label="Pincode"
-                  className=""
-                />
-                <FormInput
-                  control={form.control}
-                  name="billingCity"
-                  label="City"
-                  className=""
-                />
-                <FormField
-                  control={form.control}
-                  name="billingState"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>State</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        disabled={form.watch("sameAsBilling")}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a state" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="up">UP</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+            <div className="mt-6 grid md:grid-cols-2 gap-6">
+              <FormInput
+                key="shippingAddress1"
+                control={form.control}
+                name="shippingAddress1"
+                label="Address 1"
+              />
+              <FormInput
+                key="shippingLandmark"
+                control={form.control}
+                name="shippingLandmark"
+                label="Landmark"
+              />
             </div>
-            <Button type="submit" className="mt-10" size="lg">
+            <div className="space-y-2 mt-6">
+              <FormInput
+                key="shippingAddress2"
+                control={form.control}
+                name="shippingAddress2"
+                label="Address 2"
+              />
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 mt-6">
+              <FormInput
+                key="shippingPincode"
+                control={form.control}
+                name="shippingPincode"
+                label="Pincode"
+              />
+              <FormInput
+                key="shippingCity"
+                control={form.control}
+                name="shippingCity"
+                label="City"
+              />
+              <FormField
+                control={form.control}
+                name="shippingState"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a state" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {statesLoading ? (
+                          <SelectItem value="loading">Loading...</SelectItem>
+                        ) : states.length > 0 ? (
+                          states.map((state) => (
+                            <SelectItem key={state.code} value={state.code}>
+                              {state.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-states">
+                            No states available
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+          <div className="mt-12">
+            <FormField
+              control={form.control}
+              name="sameAsBilling"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(checked) => {
+                        setChecked(checked as boolean);
+                        field.onChange(checked);
+                        if (checked) {
+                          form.setValue(
+                            "billingFirstName",
+                            form.getValues("shippingFirstName")
+                          );
+                          form.setValue(
+                            "billingLastName",
+                            form.getValues("shippingLastName")
+                          );
+                          form.setValue(
+                            "billingMobile",
+                            form.getValues("shippingMobile")
+                          );
+                          form.setValue(
+                            "billingAlternateMobile",
+                            form.getValues("shippingAlternateMobile")
+                          );
+                          form.setValue(
+                            "billingEmail",
+                            form.getValues("shippingEmail")
+                          );
+                          form.setValue(
+                            "billingAddress1",
+                            form.getValues("shippingAddress1")
+                          );
+                          form.setValue(
+                            "billingLandmark",
+                            form.getValues("shippingLandmark")
+                          );
+                          form.setValue(
+                            "billingAddress2",
+                            form.getValues("shippingAddress2")
+                          );
+                          form.setValue(
+                            "billingPincode",
+                            form.getValues("shippingPincode")
+                          );
+                          form.setValue(
+                            "billingCity",
+                            form.getValues("shippingCity")
+                          );
+                          form.setValue(
+                            "billingCountry",
+                            form.getValues("shippingCountry")
+                          );
+                          form.setValue(
+                            "billingState",
+                            form.getValues("shippingState")
+                          );
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Shipping & Billing Address are same</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className={`${checked ? "hidden" : "mt-12"}`}>
+            <h2 className="text-xl font-semibold mb-6">
+              Buyer Billing Details
+            </h2>
+            <div className="md:grid grid-cols-3 gap-6">
+              <FormInput
+                key="billingFirstName"
+                control={form.control}
+                name="billingFirstName"
+                label="First Name"
+              />
+              <FormInput
+                key="billingLastName"
+                control={form.control}
+                name="billingLastName"
+                label="Last Name"
+              />
+              <FormInput
+                key="billingMobile"
+                control={form.control}
+                name="billingMobile"
+                label="Mobile No."
+              />
+              <FormInput
+                key="billingAlternateMobile"
+                control={form.control}
+                name="billingAlternateMobile"
+                label="Alternate Mobile No."
+              />
+              <FormInput
+                key="billingEmail"
+                control={form.control}
+                name="billingEmail"
+                label="Email Id"
+                className="col-span-2"
+              />
+            </div>
+            <div className="mt-6">
+              <FormField
+                control={form.control}
+                name="billingCountry"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Country</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={form.watch("sameAsBilling")}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a country" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="india">India (IND)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="mt-6 grid md:grid-cols-2 gap-6">
+              <FormInput
+                key="billingAddress1"
+                control={form.control}
+                name="billingAddress1"
+                label="Address 1"
+              />
+              <FormInput
+                key="billingLandmark"
+                control={form.control}
+                name="billingLandmark"
+                label="Landmark"
+              />
+            </div>
+            <div className="space-y-2 mt-6">
+              <FormInput
+                key="billingAddress2"
+                control={form.control}
+                name="billingAddress2"
+                label="Address 2"
+              />
+            </div>
+            <div className="grid md:grid-cols-3 gap-6 mt-6">
+              <FormInput
+                key="billingPincode"
+                control={form.control}
+                name="billingPincode"
+                label="Pincode"
+              />
+              <FormInput
+                key="billingCity"
+                control={form.control}
+                name="billingCity"
+                label="City"
+              />
+              <FormField
+                control={form.control}
+                name="billingState"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={form.watch("sameAsBilling")}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a state" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="up">UP</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              className="mt-10 bg-blue-400 hover:bg-blue-500"
+              size="lg">
               Continue
             </Button>
           </div>
