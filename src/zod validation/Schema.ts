@@ -6,8 +6,14 @@ export const formSchema = z.object({
   shippingLastName: z.string().min(1, "Last name is required"),
   shippingMobile: z
     .string()
-    .min(10, "Mobile number must be at least 10 digits"),
-  shippingAlternateMobile: z.string().optional(),
+    .min(10, "Mobile number must be at least 10 digits")
+    .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+  shippingAlternateMobile: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^\d{10}$/.test(val), {
+      message: "Alternate mobile number must be exactly 10 digits",
+    }),
   shippingEmail: z.string().email("Invalid email address"),
   shippingCountry: z.string().min(1, "Country is required"),
   shippingAddress1: z.string().min(1, "Address 1 is required"),
@@ -19,8 +25,16 @@ export const formSchema = z.object({
   sameAsBilling: z.boolean().default(false),
   billingFirstName: z.string().min(1, "First name is required"),
   billingLastName: z.string().min(1, "Last name is required"),
-  billingMobile: z.string().min(10, "Mobile number must be at least 10 digits"),
-  billingAlternateMobile: z.string().optional(),
+  billingMobile: z
+    .string()
+    .min(10, "Mobile number must be at least 10 digits")
+    .regex(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+  billingAlternateMobile: z
+    .string()
+    .optional()
+    .refine((val) => !val || /^\d{10}$/.test(val), {
+      message: "Alternate mobile number must be exactly 10 digits",
+    }),
   billingEmail: z.string().email("Invalid email address"),
   billingCountry: z.string(),
   billingAddress1: z.string().min(1, "Address 1 is required"),
@@ -34,23 +48,70 @@ export const formSchema = z.object({
 const itemSchema = z.object({
   productName: z.string().min(1, { message: "Product name is required" }),
   sku: z.string().optional(),
-  hsn: z.string().min(1, { message: "HSN is required" }),
-  qty: z.string().min(1, { message: "Quantity is required" }),
-  unitPrice: z.string().min(1, { message: "Unit price is required" }),
-  igst: z.string().min(1, { message: "IGST is required" }),
+  hsn: z
+    .string()
+    .min(1, { message: "HSN is required" })
+    .regex(/^\d{4,8}$/, "HSN must be between 4 and 8 digits"),
+  qty: z
+    .string()
+    .min(1, { message: "Quantity is required" })
+    .regex(/^\d+(\.\d+)?$/, "Quantity must be a valid number"),
+  unitPrice: z
+    .string()
+    .min(1, { message: "Unit price is required" })
+    .regex(
+      /^\d+(\.\d{1,2})?$/,
+      "Unit price must be a valid number with up to two decimal places"
+    ),
+  igst: z
+    .string()
+    .min(1, { message: "IGST is required" })
+    .regex(
+      /^\d+(\.\d{1,2})?$/,
+      "IGST must be a valid percentage or number with up to two decimal places"
+    ),
 });
 export const orderFormSchema = z.object({
   shipmentType: z.enum(["CSB IV", "CSB V"]),
-  actualWeight: z.string().min(1, { message: "Actual weight is required" }),
-  length: z.string().min(1, { message: "Length is required" }),
-  breadth: z.string().min(1, { message: "Breadth is required" }),
-  height: z.string().min(1, { message: "Height is required" }),
-  invoiceNo: z.string().min(1, { message: "Invoice number is required" }),
-  invoiceDate: z.string().min(1, { message: "Invoice date is required" }),
+
+  actualWeight: z
+    .string()
+    .min(1, { message: "Actual weight is required" })
+    .regex(/^\d+(\.\d+)?$/, "Actual weight must be a valid number"),
+  length: z
+    .string()
+    .min(1, { message: "Length is required" })
+    .regex(/^\d+(\.\d+)?$/, "Length must be a valid number"),
+  breadth: z
+    .string()
+    .min(1, { message: "Breadth is required" })
+    .regex(/^\d+(\.\d+)?$/, "Breadth must be a valid number"),
+  height: z
+    .string()
+    .min(1, { message: "Height is required" })
+    .regex(/^\d+(\.\d+)?$/, "Height must be a valid number"),
+  invoiceNo: z
+    .string()
+    .min(1, { message: "Invoice number is required" })
+    .regex(/^[A-Za-z0-9]+$/, "Invoice number must be alphanumeric"),
+  invoiceDate: z
+    .string()
+    .min(1, { message: "Invoice date is required" })
+    .regex(
+      /^\d{4}-\d{2}-\d{2}$/,
+      "Invoice date must be in the format YYYY-MM-DD"
+    ),
   invoiceCurrency: z
     .string()
-    .min(1, { message: "Invoice currency is required" }),
-  orderId: z.string().optional(),
+    .min(1, { message: "Invoice currency is required" })
+    .regex(
+      /^[A-Za-z]{3}$/,
+      "Invoice currency must be a 3-letter currency code"
+    ),
+  orderId: z
+    .string()
+    .min(1, { message: "orderId is required" })
+    .regex(/^[A-Za-z0-9]+$/, "Order ID must be alphanumeric"),
   iossNumber: z.string().optional(),
   items: z
     .array(itemSchema)

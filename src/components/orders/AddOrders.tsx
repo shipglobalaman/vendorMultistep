@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DashboardPage from "@/layouts/DashboardPage";
 import BuyerDetail from "./BuyerDetail";
 import OrderDetail from "./OrderDetail";
@@ -6,8 +6,16 @@ import ShippingPartner from "./ShippingPartner";
 import PlaceOrder from "./PlaceOrder";
 import Stepper from "./Stepper";
 
+const getInitialStep = () => {
+  return Number(localStorage.getItem("step")) || 1;
+};
+
 export default function AddOrders() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(getInitialStep);
+
+  useEffect(() => {
+    localStorage.setItem("step", String(step));
+  }, [step]);
 
   return (
     <DashboardPage>
