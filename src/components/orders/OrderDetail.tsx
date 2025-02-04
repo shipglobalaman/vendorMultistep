@@ -21,33 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useEffect } from "react";
+import { orderFormSchema } from "@/zod validation/Schema";
 
-const itemSchema = z.object({
-  productName: z.string().min(1, { message: "Product name is required" }),
-  sku: z.string().optional(),
-  hsn: z.string().min(1, { message: "HSN is required" }),
-  qty: z.string().min(1, { message: "Quantity is required" }),
-  unitPrice: z.string().min(1, { message: "Unit price is required" }),
-  igst: z.string().min(1, { message: "IGST is required" }),
-});
-
-const formSchema = z.object({
-  shipmentType: z.enum(["CSB IV", "CSB V"]),
-  actualWeight: z.string().min(1, { message: "Actual weight is required" }),
-  length: z.string().min(1, { message: "Length is required" }),
-  breadth: z.string().min(1, { message: "Breadth is required" }),
-  height: z.string().min(1, { message: "Height is required" }),
-  invoiceNo: z.string().min(1, { message: "Invoice number is required" }),
-  invoiceDate: z.string().min(1, { message: "Invoice date is required" }),
-  invoiceCurrency: z
-    .string()
-    .min(1, { message: "Invoice currency is required" }),
-  orderId: z.string().optional(),
-  iossNumber: z.string().optional(),
-  items: z
-    .array(itemSchema)
-    .min(1, { message: "At least one item is required" }),
-});
 interface OrderDetailProps {
   step: number;
   setStep: React.Dispatch<React.SetStateAction<number>>;
@@ -55,8 +30,8 @@ interface OrderDetailProps {
 type ItemFields = "productName" | "sku" | "hsn" | "qty" | "unitPrice";
 
 export default function OrderDetail({ step, setStep }: OrderDetailProps) {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof orderFormSchema>>({
+    resolver: zodResolver(orderFormSchema),
     defaultValues: {
       shipmentType: "CSB IV",
       invoiceCurrency: "INR",
@@ -87,7 +62,7 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
       form.reset(parsedData);
     }
   }, [form]);
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  function onSubmit(values: z.infer<typeof orderFormSchema>) {
     const existingData = localStorage.getItem("formData");
     let formData = existingData ? JSON.parse(existingData) : {};
     formData = {
