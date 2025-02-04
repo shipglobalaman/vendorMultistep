@@ -1,4 +1,4 @@
-"use client";
+import { useEffect, useState } from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,6 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 
-// Types
 interface ShippingOption {
   id: string;
   name: string;
@@ -23,7 +22,6 @@ interface ShippingOption {
   isRecommended?: boolean;
 }
 
-// Data
 const shippingOptions: ShippingOption[] = [
   {
     id: "shipglobal",
@@ -55,13 +53,26 @@ const shippingOptions: ShippingOption[] = [
   },
 ];
 
-function ShippingOptionCard({ option }: { option: ShippingOption }) {
+function ShippingOptionCard({
+  option,
+  isSelected,
+}: {
+  option: ShippingOption;
+  isSelected: boolean;
+}) {
   return (
-    <Card className="p-4 border border-dashed">
+    <Card
+      className={`p-4 border border-dashed ${
+        isSelected ? "border-blue-500" : "border-gray-300"
+      }`}>
       <FormLabel className="flex items-center justify-between cursor-pointer">
         <div className="flex items-center gap-4">
           <FormControl>
-            <RadioGroupItem value={option.id} className="w-5 h-5" />
+            <RadioGroupItem
+              value={option.id}
+              className="w-5 h-5"
+              checked={isSelected}
+            />
           </FormControl>
           <div>
             <div className="flex items-center gap-2">
@@ -99,16 +110,31 @@ export default function ShippingPartner({
   step,
   setStep,
 }: ShippingPartnerProps) {
+  const [selectedShippingOption, setSelectedShippingOption] =
+    useState<string>("");
+
   const form = useForm({
     defaultValues: {
-      shippingOption: shippingOptions[0].id,
+      shippingOption: selectedShippingOption || shippingOptions[0].id,
     },
   });
+
+  useEffect(() => {
+    const storedData = localStorage.getItem("formData");
+    if (storedData) {
+      const formData = JSON.parse(storedData);
+      if (formData.shippingOption) {
+        setSelectedShippingOption(formData.shippingOption);
+        form.setValue("shippingOption", formData.shippingOption.id);
+      }
+    }
+  }, [form]);
 
   const onSubmit = (data: { shippingOption: string }) => {
     const existingData = localStorage.getItem("formData");
     let formData = existingData ? JSON.parse(existingData) : {};
     setStep(step + 1);
+
     const selectedShippingOption = shippingOptions.find(
       (option) => option.id === data.shippingOption
     );
@@ -169,11 +195,19 @@ export default function ShippingPartner({
               <FormItem>
                 <FormControl>
                   <RadioGroup
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
+                    value={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      console.log(value);
+                      setSelectedShippingOption(value);
+                    }}
                     className="space-y-4">
                     {shippingOptions.map((option) => (
-                      <ShippingOptionCard key={option.id} option={option} />
+                      <ShippingOptionCard
+                        key={option.id}
+                        option={option}
+                        isSelected={field.value === option.id}
+                      />
                     ))}
                   </RadioGroup>
                 </FormControl>

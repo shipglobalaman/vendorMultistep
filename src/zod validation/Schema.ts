@@ -30,3 +30,29 @@ export const formSchema = z.object({
   billingCity: z.string().min(1, "City is required"),
   billingState: z.string().min(1, "State is required"),
 });
+
+const itemSchema = z.object({
+  productName: z.string().min(1, { message: "Product name is required" }),
+  sku: z.string().optional(),
+  hsn: z.string().min(1, { message: "HSN is required" }),
+  qty: z.string().min(1, { message: "Quantity is required" }),
+  unitPrice: z.string().min(1, { message: "Unit price is required" }),
+  igst: z.string().min(1, { message: "IGST is required" }),
+});
+export const orderFormSchema = z.object({
+  shipmentType: z.enum(["CSB IV", "CSB V"]),
+  actualWeight: z.string().min(1, { message: "Actual weight is required" }),
+  length: z.string().min(1, { message: "Length is required" }),
+  breadth: z.string().min(1, { message: "Breadth is required" }),
+  height: z.string().min(1, { message: "Height is required" }),
+  invoiceNo: z.string().min(1, { message: "Invoice number is required" }),
+  invoiceDate: z.string().min(1, { message: "Invoice date is required" }),
+  invoiceCurrency: z
+    .string()
+    .min(1, { message: "Invoice currency is required" }),
+  orderId: z.string().optional(),
+  iossNumber: z.string().optional(),
+  items: z
+    .array(itemSchema)
+    .min(1, { message: "At least one item is required" }),
+});

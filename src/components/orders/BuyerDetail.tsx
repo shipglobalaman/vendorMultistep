@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,13 +7,6 @@ import { formSchema } from "@/zod validation/Schema";
 import type * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Command,
   CommandEmpty,
@@ -54,12 +47,25 @@ interface BuyerDetailProps {
 }
 
 export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
-  const [open, setOpen] = useState(false);
-  const [open1, setOpen1] = useState(false);
-  const [checked, setChecked] = useState(true);
+  const [openAddress, setOpenAddress] = useState(false);
+  const [openCountry, setOpenCountry] = useState(false);
+  const [openCity, setOpenCity] = useState(false);
+  const [openBillingCountry, setOpenBillingCountry] = useState(false);
+  const [openBillingState, setOpenBillingState] = useState(false);
   const { countries, loading: countriesLoading } = useCountries();
-  const [selectedCountry, setSelectedCountry] = useState("");
-  const { states, loading: statesLoading } = useStates(selectedCountry);
+  const [selectedShippingCountry, setSelectedShippingCountry] = useState("");
+  const { states: shippingStates, loading: statesLoading } = useStates(
+    selectedShippingCountry
+  );
+  const [selectedBillingCountry, setSelectedBillingCountry] = useState("");
+  const { states: billingStates, loading: billingStatesLoading } = useStates(
+    selectedBillingCountry
+  );
+  const savedData = localStorage.getItem("formData");
+  const initialChecked = savedData
+    ? JSON.parse(savedData).sameAsBilling ?? true
+    : true;
+  const [checked, setChecked] = useState(initialChecked);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -92,13 +98,60 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
       billingState: "",
     },
   });
+  useEffect(() => {
+    const savedData = localStorage.getItem("formData");
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      console.log(parsedData);
+      form.reset(parsedData);
+      if (parsedData.shippingCountry) {
+        setSelectedShippingCountry(parsedData.shippingCountry);
+      }
+      if (parsedData.billingCountry) {
+        setSelectedBillingCountry(parsedData.billingCountry);
+      }
+    }
+  }, [form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
     localStorage.setItem("formData", JSON.stringify(values));
     setStep(step + 1);
   }
 
+  const shippingAddress = form.watch([
+    "shippingFirstName",
+    "shippingLastName",
+    "shippingMobile",
+    "shippingAlternateMobile",
+    "shippingEmail",
+    "shippingCountry",
+    "shippingAddress1",
+    "shippingLandmark",
+    "shippingAddress2",
+    "shippingPincode",
+    "shippingCity",
+    "shippingState",
+  ]);
+  useEffect(() => {
+    console.log(checked);
+    if (checked) {
+      form.setValue("billingFirstName", form.getValues("shippingFirstName"));
+      form.setValue("billingLastName", form.getValues("shippingLastName"));
+      form.setValue("billingMobile", form.getValues("shippingMobile"));
+      form.setValue(
+        "billingAlternateMobile",
+        form.getValues("shippingAlternateMobile")
+      );
+      form.setValue("billingEmail", form.getValues("shippingEmail"));
+      form.setValue("billingAddress1", form.getValues("shippingAddress1"));
+      form.setValue("billingLandmark", form.getValues("shippingLandmark"));
+      form.setValue("billingAddress2", form.getValues("shippingAddress2"));
+      form.setValue("billingPincode", form.getValues("shippingPincode"));
+      form.setValue("billingCity", form.getValues("shippingCity"));
+      form.setValue("billingCountry", form.getValues("shippingCountry"));
+      form.setValue("billingState", form.getValues("shippingState"));
+    }
+  }, [checked, form, shippingAddress]);
   return (
     <DashboardPage>
       <Form {...form}>
@@ -115,12 +168,12 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
-                      <Popover open={open} onOpenChange={setOpen}>
+                      <Popover open={openAddress} onOpenChange={setOpenAddress}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
                             role="combobox"
-                            aria-expanded={open}
+                            aria-expanded={openAddress}
                             className="w-full mt-2 justify-between h-auto py-3 text-left font-normal md:text-wrap bg-gray-50">
                             {field.value
                               ? addresses.find(
@@ -145,7 +198,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                                         "pickupAddress",
                                         address.value
                                       );
-                                      setOpen(false);
+                                      setOpenAddress(false);
                                     }}>
                                     <Check
                                       className={cn(
@@ -174,7 +227,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
               <h2 className="text-xl font-semibold mb-6">
                 Buyer Shipping Details
               </h2>
-              <div className="md:grid grid-cols-3 gap-6">
+              <div className="md:grid grid-cols-3 gap-6 ">
                 <FormInput
                   key="shippingFirstName"
                   control={form.control}
@@ -216,12 +269,12 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                   <FormItem>
                     <FormLabel>Country</FormLabel>
                     <FormControl>
-                      <Popover open={open1} onOpenChange={setOpen1}>
+                      <Popover open={openCountry} onOpenChange={setOpenCountry}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
                             role="combobox"
-                            aria-expanded={open1}
+                            aria-expanded={openCountry}
                             className="w-full mt-2 justify-between h-auto py-3 text-left font-normal md:text-wrap bg-gray-50">
                             {countriesLoading
                               ? "Loading..."
@@ -249,8 +302,10 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                                         value={country.code}
                                         onSelect={() => {
                                           field.onChange(country.code);
-                                          setOpen1(false);
-                                          setSelectedCountry(country.code);
+                                          setOpenCountry(false);
+                                          setSelectedShippingCountry(
+                                            country.code
+                                          );
                                         }}>
                                         <Check
                                           className={cn(
@@ -317,28 +372,64 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>State</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a state" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {statesLoading ? (
-                          <SelectItem value="loading">Loading...</SelectItem>
-                        ) : states.length > 0 ? (
-                          states.map((state) => (
-                            <SelectItem key={state.code} value={state.code}>
-                              {state.name}
-                            </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="no-states">
-                            No states available
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={openCity} onOpenChange={setOpenCity}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openCity}
+                            className={cn(
+                              "w-full mt-2 justify-between h-auto text-left font-normal bg-gray-50 overflow-hidden",
+                              !field.value && "text-muted-foreground"
+                            )}>
+                            {field.value
+                              ? shippingStates.find(
+                                  (state) => state.name === field.value
+                                )?.name
+                              : "Select a state"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
+                        <Command>
+                          <CommandInput placeholder="Search state..." />
+                          <CommandList>
+                            <CommandEmpty>No state found.</CommandEmpty>
+                            <CommandGroup>
+                              {statesLoading ? (
+                                <CommandItem disabled>Loading...</CommandItem>
+                              ) : shippingStates.length > 0 ? (
+                                shippingStates.map((state) => (
+                                  <CommandItem
+                                    key={state.code}
+                                    value={state.name}
+                                    onSelect={(value) => {
+                                      form.setValue("shippingState", value);
+                                      setOpenCity(false);
+                                    }}>
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        field.value === state.name
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {state.name}
+                                  </CommandItem>
+                                ))
+                              ) : (
+                                <CommandItem disabled>
+                                  No states available
+                                </CommandItem>
+                              )}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -357,56 +448,6 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                       onCheckedChange={(checked) => {
                         setChecked(checked as boolean);
                         field.onChange(checked);
-                        if (checked) {
-                          form.setValue(
-                            "billingFirstName",
-                            form.getValues("shippingFirstName")
-                          );
-                          form.setValue(
-                            "billingLastName",
-                            form.getValues("shippingLastName")
-                          );
-                          form.setValue(
-                            "billingMobile",
-                            form.getValues("shippingMobile")
-                          );
-                          form.setValue(
-                            "billingAlternateMobile",
-                            form.getValues("shippingAlternateMobile")
-                          );
-                          form.setValue(
-                            "billingEmail",
-                            form.getValues("shippingEmail")
-                          );
-                          form.setValue(
-                            "billingAddress1",
-                            form.getValues("shippingAddress1")
-                          );
-                          form.setValue(
-                            "billingLandmark",
-                            form.getValues("shippingLandmark")
-                          );
-                          form.setValue(
-                            "billingAddress2",
-                            form.getValues("shippingAddress2")
-                          );
-                          form.setValue(
-                            "billingPincode",
-                            form.getValues("shippingPincode")
-                          );
-                          form.setValue(
-                            "billingCity",
-                            form.getValues("shippingCity")
-                          );
-                          form.setValue(
-                            "billingCountry",
-                            form.getValues("shippingCountry")
-                          );
-                          form.setValue(
-                            "billingState",
-                            form.getValues("shippingState")
-                          );
-                        }
                       }}
                     />
                   </FormControl>
@@ -421,7 +462,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
             <h2 className="text-xl font-semibold mb-6">
               Buyer Billing Details
             </h2>
-            <div className="md:grid grid-cols-3 gap-6">
+            <div className="md:grid grid-cols-3 gap-6 ">
               <FormInput
                 key="billingFirstName"
                 control={form.control}
@@ -460,20 +501,53 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 name="billingCountry"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      disabled={form.watch("sameAsBilling")}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a country" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="india">India (IND)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Billing Country</FormLabel>
+                    <FormControl>
+                      <Popover
+                        open={openBillingCountry}
+                        onOpenChange={setOpenBillingCountry}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full mt-2 justify-between h-auto py-3 text-left font-normal bg-gray-50">
+                            {countriesLoading
+                              ? "Loading..."
+                              : countries.find((c) => c.code === field.value)
+                                  ?.name || "Select Country"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent>
+                          <Command>
+                            <CommandInput placeholder="Search country..." />
+                            <CommandList>
+                              {countriesLoading ? (
+                                <CommandEmpty>
+                                  Loading countries...
+                                </CommandEmpty>
+                              ) : (
+                                <CommandGroup>
+                                  {countries.map((country) => (
+                                    <CommandItem
+                                      key={country.code}
+                                      value={country.code}
+                                      onSelect={() => {
+                                        field.onChange(country.code);
+                                        setOpenBillingCountry(false);
+                                        setSelectedBillingCountry(country.code);
+                                      }}>
+                                      <Check className="mr-2 h-4 w-4 opacity-100" />
+                                      {country.name}
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              )}
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -519,20 +593,53 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 name="billingState"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>State</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      disabled={form.watch("sameAsBilling")}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a state" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="up">UP</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Billing State</FormLabel>
+                    <Popover
+                      open={openBillingState}
+                      onOpenChange={setOpenBillingState}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className="w-full justify-between">
+                            {field.value
+                              ? billingStates.find(
+                                  (state) => state.name === field.value
+                                )?.name
+                              : "Select a state"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <Command>
+                          <CommandInput placeholder="Search state..." />
+                          <CommandList>
+                            {billingStatesLoading ? (
+                              <CommandItem disabled>Loading...</CommandItem>
+                            ) : billingStates.length > 0 ? (
+                              billingStates.map((state) => (
+                                <CommandItem
+                                  key={state.code}
+                                  value={state.name}
+                                  onSelect={(value) => {
+                                    form.setValue("billingState", value);
+                                    setOpenBillingState(false);
+                                  }}>
+                                  <Check className="mr-2 h-4 w-4 opacity-100" />
+                                  {state.name}
+                                </CommandItem>
+                              ))
+                            ) : (
+                              <CommandItem disabled>
+                                No states available
+                              </CommandItem>
+                            )}
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}

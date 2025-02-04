@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEffect } from "react";
 
 const itemSchema = z.object({
   productName: z.string().min(1, { message: "Product name is required" }),
@@ -71,12 +72,21 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
       ],
     },
   });
+
   const itemFields = ["productName", "sku", "hsn", "qty", "unitPrice"];
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
   });
 
+  useEffect(() => {
+    const savedData = localStorage.getItem("formData");
+    if (savedData) {
+      const parsedData = JSON.parse(savedData);
+      console.log(parsedData);
+      form.reset(parsedData);
+    }
+  }, [form]);
   function onSubmit(values: z.infer<typeof formSchema>) {
     const existingData = localStorage.getItem("formData");
     let formData = existingData ? JSON.parse(existingData) : {};
@@ -84,7 +94,6 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
       ...formData,
       ...values,
     };
-
     localStorage.setItem("formData", JSON.stringify(formData));
     setStep(step + 1);
     console.log(values);
@@ -104,7 +113,7 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
             please select CSB IV.
           </p>
           <p className="text-gray-500">
-            If you need more info, please call/whatsapp at{" "}
+            If you need more info, please call/whatsapp at
             <a href="tel:+919811098919" className="text-blue-500">
               +91 9811098919
             </a>
