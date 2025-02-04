@@ -44,11 +44,10 @@ export function ComboBox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-full mt-2 justify-between h-auto  text-left font-normal md:text-wrap bg-gray-50">
+          className="w-full mt-2 justify-between h-auto text-left font-normal text-wrap bg-gray-50">
           {loading
             ? "Loading..."
-            : // : value
-              options.find((option) => option.value === value)?.label ||
+            : options.find((option) => option.value === value)?.label ||
               placeholder}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
