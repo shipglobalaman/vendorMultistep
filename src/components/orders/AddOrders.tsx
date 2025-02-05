@@ -19,7 +19,7 @@ export default function AddOrders() {
 
   return (
     <DashboardPage>
-      <div className="xl:flex xl:space-x-10 block space-x-0">
+      <div className="xl:flex xl:space-x-10 block space-x-0 space-y-4 xl:space-y-0">
         <div className="xl:w-1/4 w-full p-6 bg-white flex justify-center items-center rounded-lg">
           <Stepper step={step} />
         </div>

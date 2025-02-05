@@ -106,6 +106,7 @@ interface ComboBoxFormFieldProps {
   emptyMessage: string;
   loading?: boolean;
   onOptionSelected?: (value: string) => void;
+  required?: boolean;
 }
 
 export function ComboBoxFormField({
@@ -117,6 +118,7 @@ export function ComboBoxFormField({
   emptyMessage,
   loading = false,
   onOptionSelected,
+  required = false,
 }: ComboBoxFormFieldProps) {
   const { control } = useFormContext();
 
@@ -126,7 +128,12 @@ export function ComboBoxFormField({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>
+            <div className="flex gap-1">
+              <p>{label}</p>
+              {required && <span className="text-red-500">*</span>}
+            </div>
+          </FormLabel>
           <FormControl>
             <ComboBox
               options={options}

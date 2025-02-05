@@ -1,21 +1,14 @@
 import { useEffect, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { formSchema } from "@/zod validation/Schema";
 import type * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import DashboardPage from "@/layouts/DashboardPage";
-import { FormInput } from "../elements/FormInput";
-import { useCountries, useStates } from "../orders/CountryApi";
-import { ComboBoxFormField } from "../elements/ComboBoxFormField";
+import { FormInput } from "@/components/elements/FormInput";
+import { ComboBoxFormField } from "@/components/elements/ComboBoxFormField";
+import { useCountries, useStates } from "@/components/orders/CountryApi";
 
 const addresses = [
   {
@@ -32,12 +25,13 @@ interface BuyerDetailProps {
 }
 
 export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
-  const { countries, loading: countriesLoading } = useCountries();
+ 
   const [selectedShippingCountry, setSelectedShippingCountry] = useState("");
+  const [selectedBillingCountry, setSelectedBillingCountry] = useState("");
+  const { countries, loading: countriesLoading } = useCountries();
   const { states: shippingStates, loading: statesLoading } = useStates(
     selectedShippingCountry
   );
-  const [selectedBillingCountry, setSelectedBillingCountry] = useState("");
   const { states: billingStates, loading: billingStatesLoading } = useStates(
     selectedBillingCountry
   );
@@ -46,6 +40,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
     ? JSON.parse(savedData).sameAsBilling ?? true
     : true;
   const [checked, setChecked] = useState(initialChecked);
+
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -78,11 +73,11 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
       billingState: "",
     },
   });
+
   useEffect(() => {
     const savedData = localStorage.getItem("formData");
     if (savedData) {
       const parsedData = JSON.parse(savedData);
-      console.log(parsedData);
       form.reset(parsedData);
       if (parsedData.shippingCountry) {
         setSelectedShippingCountry(parsedData.shippingCountry);
@@ -94,7 +89,13 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
   }, [form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    localStorage.setItem("formData", JSON.stringify(values));
+    const existingData = localStorage.getItem("formData");
+    let formData = existingData ? JSON.parse(existingData) : {};
+    formData = {
+      ...formData,
+      ...values,
+    };
+    localStorage.setItem("formData", JSON.stringify(formData));
     setStep(step + 1);
   }
 
@@ -112,8 +113,8 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
     "shippingCity",
     "shippingState",
   ]);
+
   useEffect(() => {
-    console.log(checked);
     if (checked) {
       form.setValue("billingFirstName", form.getValues("shippingFirstName"));
       form.setValue("billingLastName", form.getValues("shippingLastName"));
@@ -150,6 +151,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 placeholder="Select pickup address..."
                 searchPlaceholder="Search address..."
                 emptyMessage="No address found."
+                required={true}
               />
             </div>
             <hr />
@@ -163,18 +165,21 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                   control={form.control}
                   name="shippingFirstName"
                   label="First Name"
+                  required={true}
                 />
                 <FormInput
                   key="shippingLastName"
                   control={form.control}
                   name="shippingLastName"
                   label="Last Name"
+                  required={true}
                 />
                 <FormInput
                   key="shippingMobile"
                   control={form.control}
                   name="shippingMobile"
                   label="Mobile No."
+                  required={true}
                 />
                 <FormInput
                   key="shippingAlternateMobile"
@@ -188,6 +193,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                   name="shippingEmail"
                   label="Email Id"
                   className="col-span-2"
+                  required={true}
                 />
               </div>
             </div>
@@ -204,6 +210,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 emptyMessage="No country found."
                 loading={countriesLoading}
                 onOptionSelected={setSelectedShippingCountry}
+                required={true}
               />
             </div>
             <div className="mt-6 grid md:grid-cols-2 gap-6">
@@ -212,6 +219,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 control={form.control}
                 name="shippingAddress1"
                 label="Address 1"
+                required={true}
               />
               <FormInput
                 key="shippingLandmark"
@@ -226,6 +234,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 control={form.control}
                 name="shippingAddress2"
                 label="Address 2"
+                required={true}
               />
             </div>
             <div className="grid md:grid-cols-3 gap-6 mt-6">
@@ -234,12 +243,14 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 control={form.control}
                 name="shippingPincode"
                 label="Pincode"
+                required={true}
               />
               <FormInput
                 key="shippingCity"
                 control={form.control}
                 name="shippingCity"
                 label="City"
+                required={true}
               />
               <ComboBoxFormField
                 name="shippingState"
@@ -252,29 +263,18 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 searchPlaceholder="Search state..."
                 emptyMessage="No state found."
                 loading={statesLoading}
+                required={true}
               />
             </div>
           </div>
           <div className="mt-12">
-            <FormField
+            <FormInput
               control={form.control}
               name="sameAsBilling"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={checked}
-                      onCheckedChange={(checked) => {
-                        setChecked(checked as boolean);
-                        field.onChange(checked);
-                      }}
-                    />
-                  </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>Shipping & Billing Address are same</FormLabel>
-                  </div>
-                </FormItem>
-              )}
+              label="Shipping & Billing Address are same"
+              type="checkbox"
+              checked={checked}
+              onCheckedChange={setChecked}
             />
           </div>
           <div className={`${checked ? "hidden" : "mt-12"}`}>
@@ -327,6 +327,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 emptyMessage="No country found."
                 loading={countriesLoading}
                 onOptionSelected={setSelectedBillingCountry}
+                required={true}
               />
             </div>
             <div className="mt-6 grid md:grid-cols-2 gap-6">
@@ -375,6 +376,7 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
                 searchPlaceholder="Search state..."
                 emptyMessage="No state found."
                 loading={billingStatesLoading}
+                required={true}
               />
             </div>
           </div>
