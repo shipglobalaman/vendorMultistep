@@ -138,7 +138,7 @@ export default function ShippingPartner() {
         and ex-Delhi Hub.
       </p>
       <p className="text-gray-500 mb-8 text-sm">
-        If you need more info, please call/whatsapp at{" "}
+        If you need more info, please call/whatsapp at
         <a href="tel:011-422-77-777" className="text-blue-500">
           011-422 77 777
         </a>

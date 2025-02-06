@@ -221,7 +221,7 @@ const ShipmentSelection = ({
         select CSB IV.
       </p>
       <p className="text-gray-500">
-        If you need more info, call/WhatsApp at{" "}
+        If you need more info, call/WhatsApp at
         <a href="tel:+919811098919" className="text-blue-500">
           +91 9811098919
         </a>
@@ -280,7 +280,7 @@ const ShipmentDetails = ({ form }) => {
     <section className="space-y-4">
       <h2 className="text-2xl font-bold">Shipment Details</h2>
       <p className="text-gray-500">
-        If you need more info, please check out{" "}
+        If you need more info, please check out
         <a href="#" className="text-blue-500 hover:underline">
           Help Page
         </a>
