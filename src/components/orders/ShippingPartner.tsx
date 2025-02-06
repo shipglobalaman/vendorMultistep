@@ -1,5 +1,5 @@
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import { useAddOrderStore } from "@/components/store/useAddOrderStore";
 
 interface ShippingOption {
   id: string;
@@ -101,48 +102,27 @@ function ShippingOptionCard({
   );
 }
 
-interface ShippingPartnerProps {
-  step: number;
-  setStep: React.Dispatch<React.SetStateAction<number>>;
-}
-
-export default function ShippingPartner({
-  step,
-  setStep,
-}: ShippingPartnerProps) {
-  const [selectedShippingOption, setSelectedShippingOption] =
-    useState<string>("");
+export default function ShippingPartner() {
+  const { formData, setFormData, setStep } = useAddOrderStore();
   const form = useForm({
     defaultValues: {
-      shippingOption: selectedShippingOption || shippingOptions[0].id,
+      shippingOption: formData.shippingOption?.id || shippingOptions[0].id,
     },
   });
 
   useEffect(() => {
-    const storedData = localStorage.getItem("formData");
-    if (storedData) {
-      const formData = JSON.parse(storedData);
-      if (formData.shippingOption) {
-        setSelectedShippingOption(formData.shippingOption);
-        form.setValue("shippingOption", formData.shippingOption.id);
-      }
+    if (formData.shippingOption) {
+      form.setValue("shippingOption", formData.shippingOption.id);
     }
-  }, [form]);
+  }, [form, formData]);
 
   const onSubmit = (data: { shippingOption: string }) => {
-    const existingData = localStorage.getItem("formData");
-    let formData = existingData ? JSON.parse(existingData) : {};
-    setStep(step + 1);
     const selectedShippingOption = shippingOptions.find(
       (option) => option.id === data.shippingOption
     );
     if (selectedShippingOption) {
-      formData = {
-        ...formData,
-        shippingOption: selectedShippingOption,
-      };
-
-      localStorage.setItem("formData", JSON.stringify(formData));
+      setFormData({ shippingOption: selectedShippingOption });
+      setStep(formData.step + 1);
     } else {
       console.log("No shipping partner selected");
     }
@@ -193,7 +173,6 @@ export default function ShippingPartner({
                     value={field.value}
                     onValueChange={(value) => {
                       field.onChange(value);
-                      setSelectedShippingOption(value);
                     }}
                     className="space-y-4">
                     {shippingOptions.map((option) => (
@@ -212,7 +191,7 @@ export default function ShippingPartner({
             <Button
               type="button"
               onClick={() => {
-                setStep(step - 1);
+                setStep(formData.step - 1);
               }}
               variant="ghost"
               className="text-blue-500 hover:text-blue-600">

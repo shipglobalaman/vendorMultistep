@@ -1,15 +1,10 @@
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useAddOrderStore } from "@/components/store/useAddOrderStore";
 
-interface PlaceOrderProps {
-  step: number;
-  setStep: React.Dispatch<React.SetStateAction<number>>;
-}
-
-export default function PlaceOrder({ step, setStep }: PlaceOrderProps) {
-  const existingData = localStorage.getItem("formData");
-  const formData = existingData ? JSON.parse(existingData) : {};
+export default function PlaceOrder() {
+  const { formData, setStep } = useAddOrderStore();
 
   const {
     pickupAddress,
@@ -83,7 +78,7 @@ export default function PlaceOrder({ step, setStep }: PlaceOrderProps) {
           <div className="flex justify-between border-t pt-4">
             <span className="text-muted-foreground">Total</span>
             <span className="font-semibold">
-              Rs. {shippingOption?.price + 2765.16}
+              Rs. {(shippingOption?.price ?? 0) + 2765.16}
             </span>
           </div>
         </div>
@@ -92,7 +87,7 @@ export default function PlaceOrder({ step, setStep }: PlaceOrderProps) {
       <div className="flex justify-between items-center pt-4">
         <Button
           onClick={() => {
-            setStep(step - 1);
+            setStep(formData.step - 1);
           }}
           variant="ghost"
           className="text-blue-500 hover:text-blue-600">

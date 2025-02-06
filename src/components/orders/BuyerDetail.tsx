@@ -9,6 +9,7 @@ import DashboardPage from "@/layouts/DashboardPage";
 import { FormInput } from "@/components/elements/FormInput";
 import { ComboBoxFormField } from "@/components/elements/ComboBoxFormField";
 import { useCountries, useStates } from "@/components/orders/CountryApi";
+import { useAddOrderStore } from "@/components/store/useAddOrderStore";
 
 const addresses = [
   {
@@ -19,13 +20,9 @@ const addresses = [
   },
 ];
 
-interface BuyerDetailProps {
-  step: number;
-  setStep: React.Dispatch<React.SetStateAction<number>>;
-}
+export default function BuyerDetail() {
+  const { formData, setFormData, setStep } = useAddOrderStore();
 
-export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
- 
   const [selectedShippingCountry, setSelectedShippingCountry] = useState("");
   const [selectedBillingCountry, setSelectedBillingCountry] = useState("");
   const { countries, loading: countriesLoading } = useCountries();
@@ -35,68 +32,25 @@ export default function BuyerDetail({ step, setStep }: BuyerDetailProps) {
   const { states: billingStates, loading: billingStatesLoading } = useStates(
     selectedBillingCountry
   );
-  const savedData = localStorage.getItem("formData");
-  const initialChecked = savedData
-    ? JSON.parse(savedData).sameAsBilling ?? true
-    : true;
-  const [checked, setChecked] = useState(initialChecked);
-
+  const [checked, setChecked] = useState(formData.sameAsBilling);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      pickupAddress: "",
-      shippingFirstName: "",
-      shippingLastName: "",
-      shippingMobile: "",
-      shippingAlternateMobile: "",
-      shippingEmail: "",
-      shippingCountry: "india",
-      shippingAddress1: "",
-      shippingLandmark: "",
-      shippingAddress2: "",
-      shippingPincode: "",
-      shippingCity: "",
-      shippingState: "",
-      sameAsBilling: false,
-      billingFirstName: "",
-      billingLastName: "",
-      billingMobile: "",
-      billingAlternateMobile: "",
-      billingEmail: "",
-      billingCountry: "india",
-      billingAddress1: "",
-      billingLandmark: "",
-      billingAddress2: "",
-      billingPincode: "",
-      billingCity: "",
-      billingState: "",
-    },
+    defaultValues: formData,
   });
 
   useEffect(() => {
-    const savedData = localStorage.getItem("formData");
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      form.reset(parsedData);
-      if (parsedData.shippingCountry) {
-        setSelectedShippingCountry(parsedData.shippingCountry);
-      }
-      if (parsedData.billingCountry) {
-        setSelectedBillingCountry(parsedData.billingCountry);
-      }
+    if (formData.shippingCountry) {
+      setSelectedShippingCountry(formData.shippingCountry);
     }
-  }, [form]);
+    if (formData.billingCountry) {
+      setSelectedBillingCountry(formData.billingCountry);
+    }
+  }, [formData]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const existingData = localStorage.getItem("formData");
-    let formData = existingData ? JSON.parse(existingData) : {};
-    formData = {
-      ...formData,
-      ...values,
-    };
-    localStorage.setItem("formData", JSON.stringify(formData));
-    setStep(step + 1);
+    setFormData(values);
+    setStep(formData.step + 1);
   }
 
   const shippingAddress = form.watch([

@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray, UseFormReturn } from "react-hook-form";
-import * as z from "zod";
+import { useForm, useFieldArray, type UseFormReturn } from "react-hook-form";
+import type * as z from "zod";
 import { Plus, UserCheck2, FileEdit, Trash2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,30 +17,13 @@ import { useEffect } from "react";
 import { orderFormSchema } from "@/zod validation/Schema";
 import clsx from "clsx";
 import { FormInput } from "../elements/FormInput";
+import { useAddOrderStore } from "@/components/store/useAddOrderStore";
 
-interface OrderDetailProps {
-  step: number;
-  setStep: React.Dispatch<React.SetStateAction<number>>;
-}
-type ItemFields = "productName" | "sku" | "hsn" | "qty" | "unitPrice";
-
-export default function OrderDetail({ step, setStep }: OrderDetailProps) {
+export default function OrderDetail() {
+  const { formData, setFormData, setStep } = useAddOrderStore();
   const form = useForm<z.infer<typeof orderFormSchema>>({
     resolver: zodResolver(orderFormSchema),
-    defaultValues: {
-      shipmentType: "CSB IV",
-      invoiceCurrency: "INR",
-      items: [
-        {
-          productName: "",
-          sku: "",
-          hsn: "",
-          qty: "",
-          unitPrice: "",
-          igst: "0",
-        },
-      ],
-    },
+    defaultValues: formData,
   });
 
   const itemFields = ["productName", "sku", "hsn", "qty", "unitPrice"];
@@ -50,23 +33,12 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
   });
 
   useEffect(() => {
-    const savedData = localStorage.getItem("formData");
-    if (savedData) {
-      const parsedData: z.infer<typeof orderFormSchema> = JSON.parse(savedData);
-      form.reset(parsedData);
-    }
-  }, [form]);
+    form.reset(formData);
+  }, [form, formData]);
 
   function onSubmit(values: z.infer<typeof orderFormSchema>) {
-    const existingData = localStorage.getItem("formData");
-    let formData = existingData ? JSON.parse(existingData) : {};
-    formData = {
-      ...formData,
-      ...values,
-    };
-    localStorage.setItem("formData", JSON.stringify(formData));
-    setStep(step + 1);
-    console.log(values);
+    setFormData(values);
+    setStep(formData.step + 1);
   }
 
   return (
@@ -120,7 +92,7 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
             {fields.map((field, index) => (
               <div className="lg:flex items-center gap-x-2" key={field.id}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4">
-                  {(itemFields as ItemFields[]).map((itemField) => {
+                  {itemFields.map((itemField) => {
                     // Conditionally determine the label based on the field name
                     let label = "";
                     switch (itemField) {
@@ -206,7 +178,7 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
         <div className="flex justify-between items-center pt-4">
           <Button
             onClick={() => {
-              setStep(step - 1);
+              setStep(formData.step - 1);
             }}
             variant="ghost"
             className="text-blue-500 hover:text-blue-600">
