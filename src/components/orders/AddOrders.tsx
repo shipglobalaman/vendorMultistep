@@ -4,11 +4,11 @@ import OrderDetail from "./OrderDetail";
 import ShippingPartner from "./ShippingPartner";
 import PlaceOrder from "./PlaceOrder";
 import Stepper from "./Stepper";
-import { useAddOrderStore } from "@/components/store/useAddOrderStore";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/components/orders/store/Store";
 
 export default function AddOrders() {
-  const { formData } = useAddOrderStore();
-  const step = formData.step;
+  const { step } = useSelector((state: RootState) => state.order);
 
   return (
     <DashboardPage>

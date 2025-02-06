@@ -9,7 +9,9 @@ import DashboardPage from "@/layouts/DashboardPage";
 import { FormInput } from "@/components/elements/FormInput";
 import { ComboBoxFormField } from "@/components/elements/ComboBoxFormField";
 import { useCountries, useStates } from "@/components/orders/CountryApi";
-import { useAddOrderStore } from "@/components/store/useAddOrderStore";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/components/orders/store/Store";
+import { setFormData, setStep } from "@/components/orders/store/OrderSlice";
 
 const addresses = [
   {
@@ -21,7 +23,8 @@ const addresses = [
 ];
 
 export default function BuyerDetail() {
-  const { formData, setFormData, setStep } = useAddOrderStore();
+  const dispatch = useDispatch();
+  const formData = useSelector((state: RootState) => state.order);
 
   const [selectedShippingCountry, setSelectedShippingCountry] = useState("");
   const [selectedBillingCountry, setSelectedBillingCountry] = useState("");
@@ -36,7 +39,7 @@ export default function BuyerDetail() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: formData,
+    defaultValues: useSelector((state: RootState) => state.order),
   });
 
   useEffect(() => {
@@ -49,8 +52,8 @@ export default function BuyerDetail() {
   }, [formData]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    setFormData(values);
-    setStep(formData.step + 1);
+    dispatch(setFormData(values));
+    dispatch(setStep(formData.step + 1));
   }
 
   const shippingAddress = form.watch([

@@ -1,3 +1,6 @@
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/components/orders/store/Store";
+import { setFormData, setStep } from "@/components/orders/store/OrderSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, type UseFormReturn } from "react-hook-form";
 import type * as z from "zod";
@@ -17,13 +20,13 @@ import { useEffect } from "react";
 import { orderFormSchema } from "@/zod validation/Schema";
 import clsx from "clsx";
 import { FormInput } from "../elements/FormInput";
-import { useAddOrderStore } from "@/components/store/useAddOrderStore";
 
 export default function OrderDetail() {
-  const { formData, setFormData, setStep } = useAddOrderStore();
+  const dispatch = useDispatch();
+  const formData = useSelector((state: RootState) => state.order);
   const form = useForm<z.infer<typeof orderFormSchema>>({
     resolver: zodResolver(orderFormSchema),
-    defaultValues: formData,
+    defaultValues: useSelector((state: RootState) => state.order),
   });
 
   const itemFields = ["productName", "sku", "hsn", "qty", "unitPrice"];
@@ -37,8 +40,8 @@ export default function OrderDetail() {
   }, [form, formData]);
 
   function onSubmit(values: z.infer<typeof orderFormSchema>) {
-    setFormData(values);
-    setStep(formData.step + 1);
+    dispatch(setFormData(values));
+    dispatch(setStep(formData.step + 1));
   }
 
   return (
@@ -178,7 +181,7 @@ export default function OrderDetail() {
         <div className="flex justify-between items-center pt-4">
           <Button
             onClick={() => {
-              setStep(formData.step - 1);
+              dispatch(setStep(formData.step - 1));
             }}
             variant="ghost"
             className="text-blue-500 hover:text-blue-600">

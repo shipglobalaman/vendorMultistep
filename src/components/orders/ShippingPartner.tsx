@@ -12,7 +12,9 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { useAddOrderStore } from "@/components/store/useAddOrderStore";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/components/orders/store/Store";
+import { setFormData, setStep } from "@/components/orders/store/OrderSlice";
 
 interface ShippingOption {
   id: string;
@@ -103,10 +105,14 @@ function ShippingOptionCard({
 }
 
 export default function ShippingPartner() {
-  const { formData, setFormData, setStep } = useAddOrderStore();
+  const dispatch = useDispatch();
+  const formData = useSelector((state: RootState) => state.order);
   const form = useForm({
     defaultValues: {
-      shippingOption: formData.shippingOption?.id || shippingOptions[0].id,
+      shippingOption: useSelector(
+        (state: RootState) =>
+          state.order.shippingOption?.id || shippingOptions[0].id
+      ),
     },
   });
 
@@ -121,8 +127,8 @@ export default function ShippingPartner() {
       (option) => option.id === data.shippingOption
     );
     if (selectedShippingOption) {
-      setFormData({ shippingOption: selectedShippingOption });
-      setStep(formData.step + 1);
+      dispatch(setFormData({ shippingOption: selectedShippingOption }));
+      dispatch(setStep(formData.step + 1));
     } else {
       console.log("No shipping partner selected");
     }
@@ -191,7 +197,7 @@ export default function ShippingPartner() {
             <Button
               type="button"
               onClick={() => {
-                setStep(formData.step - 1);
+                dispatch(setStep(formData.step - 1));
               }}
               variant="ghost"
               className="text-blue-500 hover:text-blue-600">

@@ -1,10 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useAddOrderStore } from "@/components/store/useAddOrderStore";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/components/orders/store/Store";
+import { setStep } from "@/components/orders/store/OrderSlice";
 
 export default function PlaceOrder() {
-  const { formData, setStep } = useAddOrderStore();
+  const dispatch = useDispatch();
+  const formData = useSelector((state: RootState) => state.order);
 
   const {
     pickupAddress,
@@ -87,7 +90,7 @@ export default function PlaceOrder() {
       <div className="flex justify-between items-center pt-4">
         <Button
           onClick={() => {
-            setStep(formData.step - 1);
+            dispatch(setStep(formData.step - 1));
           }}
           variant="ghost"
           className="text-blue-500 hover:text-blue-600">
