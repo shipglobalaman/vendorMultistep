@@ -1,6 +1,9 @@
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/components/orders/store/Store";
+import { setFormData, setStep } from "@/components/orders/store/OrderSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray, UseFormReturn } from "react-hook-form";
-import * as z from "zod";
+import { useForm, useFieldArray, type UseFormReturn } from "react-hook-form";
+import type * as z from "zod";
 import { Plus, UserCheck2, FileEdit, Trash2, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,29 +21,12 @@ import { orderFormSchema } from "@/zod validation/Schema";
 import clsx from "clsx";
 import { FormInput } from "../elements/FormInput";
 
-interface OrderDetailProps {
-  step: number;
-  setStep: React.Dispatch<React.SetStateAction<number>>;
-}
-type ItemFields = "productName" | "sku" | "hsn" | "qty" | "unitPrice";
-
-export default function OrderDetail({ step, setStep }: OrderDetailProps) {
+export default function OrderDetail() {
+  const dispatch = useDispatch();
+  const formData = useSelector((state: RootState) => state.order);
   const form = useForm<z.infer<typeof orderFormSchema>>({
     resolver: zodResolver(orderFormSchema),
-    defaultValues: {
-      shipmentType: "CSB IV",
-      invoiceCurrency: "INR",
-      items: [
-        {
-          productName: "",
-          sku: "",
-          hsn: "",
-          qty: "",
-          unitPrice: "",
-          igst: "0",
-        },
-      ],
-    },
+    defaultValues: useSelector((state: RootState) => state.order),
   });
 
   const itemFields = ["productName", "sku", "hsn", "qty", "unitPrice"];
@@ -50,23 +36,12 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
   });
 
   useEffect(() => {
-    const savedData = localStorage.getItem("formData");
-    if (savedData) {
-      const parsedData: z.infer<typeof orderFormSchema> = JSON.parse(savedData);
-      form.reset(parsedData);
-    }
-  }, [form]);
+    form.reset(formData);
+  }, [form, formData]);
 
   function onSubmit(values: z.infer<typeof orderFormSchema>) {
-    const existingData = localStorage.getItem("formData");
-    let formData = existingData ? JSON.parse(existingData) : {};
-    formData = {
-      ...formData,
-      ...values,
-    };
-    localStorage.setItem("formData", JSON.stringify(formData));
-    setStep(step + 1);
-    console.log(values);
+    dispatch(setFormData(values));
+    dispatch(setStep(formData.step + 1));
   }
 
   return (
@@ -120,7 +95,7 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
             {fields.map((field, index) => (
               <div className="lg:flex items-center gap-x-2" key={field.id}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4">
-                  {(itemFields as ItemFields[]).map((itemField) => {
+                  {itemFields.map((itemField) => {
                     // Conditionally determine the label based on the field name
                     let label = "";
                     switch (itemField) {
@@ -206,7 +181,7 @@ export default function OrderDetail({ step, setStep }: OrderDetailProps) {
         <div className="flex justify-between items-center pt-4">
           <Button
             onClick={() => {
-              setStep(step - 1);
+              dispatch(setStep(formData.step - 1));
             }}
             variant="ghost"
             className="text-blue-500 hover:text-blue-600">
@@ -249,7 +224,7 @@ const ShipmentSelection = ({
         select CSB IV.
       </p>
       <p className="text-gray-500">
-        If you need more info, call/WhatsApp at{" "}
+        If you need more info, call/WhatsApp at
         <a href="tel:+919811098919" className="text-blue-500">
           +91 9811098919
         </a>
@@ -308,7 +283,7 @@ const ShipmentDetails = ({ form }) => {
     <section className="space-y-4">
       <h2 className="text-2xl font-bold">Shipment Details</h2>
       <p className="text-gray-500">
-        If you need more info, please check out{" "}
+        If you need more info, please check out
         <a href="#" className="text-blue-500 hover:underline">
           Help Page
         </a>

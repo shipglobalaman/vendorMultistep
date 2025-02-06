@@ -1,21 +1,14 @@
-import { useEffect, useState } from "react";
 import DashboardPage from "@/layouts/DashboardPage";
 import BuyerDetail from "./BuyerDetail";
 import OrderDetail from "./OrderDetail";
 import ShippingPartner from "./ShippingPartner";
 import PlaceOrder from "./PlaceOrder";
 import Stepper from "./Stepper";
-
-const getInitialStep = () => {
-  return Number(localStorage.getItem("step")) || 1;
-};
+import { useSelector } from "react-redux";
+import type { RootState } from "@/components/orders/store/Store";
 
 export default function AddOrders() {
-  const [step, setStep] = useState(getInitialStep);
-
-  useEffect(() => {
-    localStorage.setItem("step", String(step));
-  }, [step]);
+  const { step } = useSelector((state: RootState) => state.order);
 
   return (
     <DashboardPage>
@@ -25,10 +18,10 @@ export default function AddOrders() {
         </div>
 
         <div className="xl:w-3/4 w-full p-8 bg-white rounded-lg">
-          {step === 1 && <BuyerDetail step={step} setStep={setStep} />}
-          {step == 2 && <OrderDetail step={step} setStep={setStep} />}
-          {step == 3 && <ShippingPartner step={step} setStep={setStep} />}
-          {step == 4 && <PlaceOrder step={step} setStep={setStep} />}
+          {step === 1 && <BuyerDetail />}
+          {step === 2 && <OrderDetail />}
+          {step === 3 && <ShippingPartner />}
+          {step === 4 && <PlaceOrder />}
         </div>
       </div>
     </DashboardPage>

@@ -1,5 +1,5 @@
 import { ArrowLeft } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
@@ -12,6 +12,9 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
+import { useSelector, useDispatch } from "react-redux";
+import type { RootState } from "@/components/orders/store/Store";
+import { setFormData, setStep } from "@/components/orders/store/OrderSlice";
 
 interface ShippingOption {
   id: string;
@@ -101,48 +104,31 @@ function ShippingOptionCard({
   );
 }
 
-interface ShippingPartnerProps {
-  step: number;
-  setStep: React.Dispatch<React.SetStateAction<number>>;
-}
-
-export default function ShippingPartner({
-  step,
-  setStep,
-}: ShippingPartnerProps) {
-  const [selectedShippingOption, setSelectedShippingOption] =
-    useState<string>("");
+export default function ShippingPartner() {
+  const dispatch = useDispatch();
+  const formData = useSelector((state: RootState) => state.order);
   const form = useForm({
     defaultValues: {
-      shippingOption: selectedShippingOption || shippingOptions[0].id,
+      shippingOption: useSelector(
+        (state: RootState) =>
+          state.order.shippingOption?.id || shippingOptions[0].id
+      ),
     },
   });
 
   useEffect(() => {
-    const storedData = localStorage.getItem("formData");
-    if (storedData) {
-      const formData = JSON.parse(storedData);
-      if (formData.shippingOption) {
-        setSelectedShippingOption(formData.shippingOption);
-        form.setValue("shippingOption", formData.shippingOption.id);
-      }
+    if (formData.shippingOption) {
+      form.setValue("shippingOption", formData.shippingOption.id);
     }
-  }, [form]);
+  }, [form, formData]);
 
   const onSubmit = (data: { shippingOption: string }) => {
-    const existingData = localStorage.getItem("formData");
-    let formData = existingData ? JSON.parse(existingData) : {};
-    setStep(step + 1);
     const selectedShippingOption = shippingOptions.find(
       (option) => option.id === data.shippingOption
     );
     if (selectedShippingOption) {
-      formData = {
-        ...formData,
-        shippingOption: selectedShippingOption,
-      };
-
-      localStorage.setItem("formData", JSON.stringify(formData));
+      dispatch(setFormData({ shippingOption: selectedShippingOption }));
+      dispatch(setStep(formData.step + 1));
     } else {
       console.log("No shipping partner selected");
     }
@@ -158,7 +144,7 @@ export default function ShippingPartner({
         and ex-Delhi Hub.
       </p>
       <p className="text-gray-500 mb-8 text-sm">
-        If you need more info, please call/whatsapp at{" "}
+        If you need more info, please call/whatsapp at
         <a href="tel:011-422-77-777" className="text-blue-500">
           011-422 77 777
         </a>
@@ -193,7 +179,6 @@ export default function ShippingPartner({
                     value={field.value}
                     onValueChange={(value) => {
                       field.onChange(value);
-                      setSelectedShippingOption(value);
                     }}
                     className="space-y-4">
                     {shippingOptions.map((option) => (
@@ -212,7 +197,7 @@ export default function ShippingPartner({
             <Button
               type="button"
               onClick={() => {
-                setStep(step - 1);
+                dispatch(setStep(formData.step - 1));
               }}
               variant="ghost"
               className="text-blue-500 hover:text-blue-600">
