@@ -15,7 +15,6 @@ export default function PrivateLayout() {
     document.addEventListener("storage", () => {
       setIsSidebarOpen(localStorage.getItem("sidebar"));
     });
-    console.log("change", isSidebarOpen);
   }, [isSidebarOpen]);
 
   return (

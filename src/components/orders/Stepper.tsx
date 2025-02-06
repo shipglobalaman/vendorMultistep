@@ -21,8 +21,10 @@ const Stepper: React.FC<StepperProps> = ({ step }) => {
     <div>
       <div className="flex xl:hidden items-center justify-between w-full">
         {steps.map((item) => (
-          <div key={item.number} className="p-5">
-            <div className="flex items-center justify-center">
+          <div
+            key={item.number}
+            className="flex flex-col items-center justify-center space-x-5">
+            <div>
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm border border-gray-300
                 ${

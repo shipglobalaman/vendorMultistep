@@ -1,9 +1,10 @@
+import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -11,7 +12,6 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
 
 interface ShippingOption {
   id: string;
@@ -62,7 +62,7 @@ function ShippingOptionCard({
 }) {
   return (
     <Card
-      className={`p-4 border border-dashed ${
+      className={`p-4 border border-dashed${
         isSelected ? "border-blue-500" : "border-gray-300"
       }`}>
       <FormLabel className="flex items-center justify-between cursor-pointer">
@@ -112,7 +112,6 @@ export default function ShippingPartner({
 }: ShippingPartnerProps) {
   const [selectedShippingOption, setSelectedShippingOption] =
     useState<string>("");
-
   const form = useForm({
     defaultValues: {
       shippingOption: selectedShippingOption || shippingOptions[0].id,
@@ -134,7 +133,6 @@ export default function ShippingPartner({
     const existingData = localStorage.getItem("formData");
     let formData = existingData ? JSON.parse(existingData) : {};
     setStep(step + 1);
-
     const selectedShippingOption = shippingOptions.find(
       (option) => option.id === data.shippingOption
     );
@@ -153,14 +151,12 @@ export default function ShippingPartner({
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Select Shipping Partner</h1>
-
       <p className="text-gray-500 mb-4 text-sm">
         All shipments via ShipGlobal Direct service are Delivered Duty Paid
         (DDP), hence no extra duty will be billed on the consignee or the
         shipper. Rates are inclusive of covid & fuel surcharge, exclusive of GST
         and ex-Delhi Hub.
       </p>
-
       <p className="text-gray-500 mb-8 text-sm">
         If you need more info, please call/whatsapp at{" "}
         <a href="tel:011-422-77-777" className="text-blue-500">
@@ -168,7 +164,6 @@ export default function ShippingPartner({
         </a>
         .
       </p>
-
       <div className="flex justify-center">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <Card className="p-2 text-center border border-dashed w-40">
@@ -198,7 +193,6 @@ export default function ShippingPartner({
                     value={field.value}
                     onValueChange={(value) => {
                       field.onChange(value);
-                      console.log(value);
                       setSelectedShippingOption(value);
                     }}
                     className="space-y-4">
@@ -214,7 +208,6 @@ export default function ShippingPartner({
               </FormItem>
             )}
           />
-
           <div className="flex justify-between items-center pt-4">
             <Button
               type="button"
