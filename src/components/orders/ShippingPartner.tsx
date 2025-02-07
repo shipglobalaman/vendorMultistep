@@ -1,17 +1,10 @@
 import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/components/orders/store/Store";
 import { setFormData, setStep } from "@/components/orders/store/OrderSlice";
@@ -59,24 +52,28 @@ const shippingOptions: ShippingOption[] = [
 function ShippingOptionCard({
   option,
   isSelected,
+  onSelect,
 }: {
   option: ShippingOption;
   isSelected: boolean;
+  onSelect: (id: string) => void;
 }) {
   return (
     <Card
-      className={`p-4 border border-dashed${
-        isSelected ? "border-blue-500" : "border-gray-300"
+      onClick={() => onSelect(option.id)}
+      className={`p-4 text-sm border border-dashed cursor-pointer ${
+        isSelected ? "border-blue-500 bg-blue-50" : "border-gray-300"
       }`}>
-      <FormLabel className="flex items-center justify-between cursor-pointer">
-        <div className="flex items-center gap-4">
-          <FormControl>
-            <RadioGroupItem
-              value={option.id}
-              className="w-5 h-5"
-              checked={isSelected}
-            />
-          </FormControl>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
+        <div className="flex items-center gap-3">
+          <input
+            type="radio"
+            id={option.id}
+            name="shippingOption"
+            checked={isSelected}
+            onChange={() => onSelect(option.id)}
+            className="w-5 h-5 text-blue-500 border rounded-full"
+          />
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold">{option.name}</span>
@@ -98,12 +95,17 @@ function ShippingOptionCard({
             </div>
           </div>
         </div>
-        <div className="text-xl font-bold">Rs. {option.price}</div>
-      </FormLabel>
+        <div className="text-xl font-bold mt-2 sm:mt-0">Rs. {option.price}</div>
+      </div>
     </Card>
   );
 }
 
+const weightData = [
+  { value: "11.00 KG", label: "Dead Weight" },
+  { value: "1.60 KG", label: "Volumetric Weight" },
+  { value: "11.00 KG", label: "Billed Weight" },
+];
 export default function ShippingPartner() {
   const dispatch = useDispatch();
   const formData = useSelector((state: RootState) => state.order);
@@ -152,47 +154,29 @@ export default function ShippingPartner() {
       </p>
       <div className="flex justify-center">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <Card className="p-2 text-center border border-dashed w-40">
-            <div className="font-bold">11.00 KG</div>
-            <div className="text-gray-500 text-xs">Dead Weight</div>
-          </Card>
-          <Card className="p-2 text-center border border-dashed w-40">
-            <div className=" font-bold">1.60 KG</div>
-            <div className="text-gray-500 text-xs">Volumetric Weight</div>
-          </Card>
-          <Card className="p-2 text-center border border-dashed w-40">
-            <div className="font-bold">11.00 KG</div>
-            <div className="text-gray-500 text-xs">Billed Weight</div>
-          </Card>
+          {weightData.map((item, index) => (
+            <Card
+              key={index}
+              className="p-2 text-center border border-dashed w-40">
+              <div className="font-bold">{item.value}</div>
+              <div className="text-gray-500 text-xs">{item.label}</div>
+            </Card>
+          ))}
         </div>
       </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name="shippingOption"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <RadioGroup
-                    value={field.value}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    className="space-y-4">
-                    {shippingOptions.map((option) => (
-                      <ShippingOptionCard
-                        key={option.id}
-                        option={option}
-                        isSelected={field.value === option.id}
-                      />
-                    ))}
-                  </RadioGroup>
-                </FormControl>
-              </FormItem>
-            )}
-          />
+          <div className="space-y-4">
+            {shippingOptions.map((option) => (
+              <ShippingOptionCard
+                key={option.id}
+                option={option}
+                isSelected={form.watch("shippingOption") === option.id}
+                onSelect={(id) => form.setValue("shippingOption", id)}
+              />
+            ))}
+          </div>
           <div className="flex justify-between items-center pt-4">
             <Button
               type="button"
