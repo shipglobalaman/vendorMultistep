@@ -61,7 +61,7 @@ export const FormInput = <T extends FieldValues>({
                         }}
                       />
                     </FormControl>
-                    <FormLabel>{label}</FormLabel>
+                    <FormLabel className="cursor-pointer">{label}</FormLabel>
                   </div>
                 );
               case "select":

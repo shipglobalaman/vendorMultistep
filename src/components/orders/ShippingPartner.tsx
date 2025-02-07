@@ -101,14 +101,22 @@ function ShippingOptionCard({
   );
 }
 
-const weightData = [
-  { value: "11.00 KG", label: "Dead Weight" },
-  { value: "1.60 KG", label: "Volumetric Weight" },
-  { value: "11.00 KG", label: "Billed Weight" },
-];
 export default function ShippingPartner() {
   const dispatch = useDispatch();
   const formData = useSelector((state: RootState) => state.order);
+  const { actualWeight, length, breadth, height } = formData;
+
+  const volumetricWeight =
+    (Number(length) * Number(breadth) * Number(height)) / 5000;
+  const billedWeight =
+    Number(actualWeight) > volumetricWeight ? actualWeight : volumetricWeight;
+
+  const weightData = [
+    { value: actualWeight, label: "Dead Weight" },
+    { value: volumetricWeight, label: "Volumetric Weight" },
+    { value: billedWeight, label: "Billed Weight" },
+  ];
+
   const form = useForm({
     defaultValues: {
       shippingOption: useSelector(
@@ -131,8 +139,6 @@ export default function ShippingPartner() {
     if (selectedShippingOption) {
       dispatch(setFormData({ shippingOption: selectedShippingOption }));
       dispatch(setStep(formData.step + 1));
-    } else {
-      console.log("No shipping partner selected");
     }
   };
 
@@ -158,7 +164,7 @@ export default function ShippingPartner() {
             <Card
               key={index}
               className="p-2 text-center border border-dashed w-40">
-              <div className="font-bold">{item.value}</div>
+              <div className="font-bold">{item.value}kg</div>
               <div className="text-gray-500 text-xs">{item.label}</div>
             </Card>
           ))}

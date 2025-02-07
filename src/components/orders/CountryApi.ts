@@ -29,7 +29,6 @@ export const useCountries = () => {
           "https://api.fr.stg.shipglobal.in/api/v1/location/countries"
         );
         const result = await response.json();
-        console.log(result);
         if (result.data?.countries) {
           const formattedCountries = result.data.countries.map(
             (country: CountryAPIResponse) => ({
@@ -37,7 +36,6 @@ export const useCountries = () => {
               name: country.country_display,
             })
           );
-          console.log(formattedCountries);
           setCountries(formattedCountries);
         }
       } catch (error) {

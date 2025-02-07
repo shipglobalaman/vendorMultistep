@@ -13,6 +13,7 @@ export default function PlaceOrder() {
     pickupAddress,
     shippingAddress1,
     shippingAddress2,
+    shippingLandmark,
     shippingCity,
     shippingState,
     shippingCountry,
@@ -34,12 +35,14 @@ export default function PlaceOrder() {
           </div>
         </div>
 
-        <div className="w-2/5 space-y-2">
+        <div className="sm:w-2/5 w-full space-y-2">
           <h2 className="text-lg text-muted-foreground">Delivery Address:</h2>
           <div className="space-y-1">
             <p className="font-semibold">{`${shippingFirstName} ${shippingLastName}`}</p>
             <p>{shippingAddress1}</p>
-            <p>{shippingAddress2}</p>
+            <p>
+              {shippingAddress2},{shippingLandmark}
+            </p>
             <p>{shippingCity}</p>
             <p>{shippingState}</p>
             <p>{shippingCountry}</p>

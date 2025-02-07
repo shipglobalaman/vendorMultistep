@@ -161,7 +161,7 @@ export default function OrderDetail() {
                 </div>
                 {fields.length > 1 && (
                   <div onClick={() => remove(index)} className="mt-7">
-                    <Trash2 className="w-5 h-5 text-red-500" />
+                    <Trash2 className="w-5 h-5 text-red-500 cursor-pointer" />
                   </div>
                 )}
               </div>
