@@ -4,7 +4,6 @@ interface CountryAPIResponse {
   country_iso2: string;
   country_display: string;
 }
-
 interface StateAPIResponse {
   state_name: string;
 }
@@ -12,7 +11,6 @@ interface Country {
   name: string;
   code: string;
 }
-
 interface State {
   name: string;
   code: string;

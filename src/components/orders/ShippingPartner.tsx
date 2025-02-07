@@ -106,10 +106,15 @@ export default function ShippingPartner() {
   const formData = useSelector((state: RootState) => state.order);
   const { actualWeight, length, breadth, height } = formData;
 
-  const volumetricWeight =
-    (Number(length) * Number(breadth) * Number(height)) / 5000;
+  const volumetricWeight = (
+    (Number(length) * Number(breadth) * Number(height)) /
+    5000
+  ).toFixed(2);
+
   const billedWeight =
-    Number(actualWeight) > volumetricWeight ? actualWeight : volumetricWeight;
+    Number(actualWeight) > Number(volumetricWeight)
+      ? actualWeight
+      : volumetricWeight;
 
   const weightData = [
     { value: actualWeight, label: "Dead Weight" },
@@ -194,7 +199,7 @@ export default function ShippingPartner() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <Button type="submit">Next</Button>
+            <Button type="submit">Continue</Button>
           </div>
         </form>
       </Form>
