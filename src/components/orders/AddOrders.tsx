@@ -17,7 +17,7 @@ export default function AddOrders() {
           <Stepper step={step} />
         </div>
 
-        <div className="xl:w-3/4 w-full p-8 bg-white rounded-lg">
+        <div className="xl:w-3/4 w-full sm:p-8 px-0 py-4 bg-white rounded-lg">
           {step === 1 && <BuyerDetail />}
           {step === 2 && <OrderDetail />}
           {step === 3 && <ShippingPartner />}
