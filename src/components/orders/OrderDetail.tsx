@@ -30,6 +30,15 @@ export default function OrderDetail() {
   });
 
   const itemFields = ["productName", "sku", "hsn", "qty", "unitPrice"];
+  const itemTemplate = {
+    productName: "",
+    sku: "",
+    hsn: "",
+    qty: "",
+    unitPrice: "",
+    igst: "0",
+  };
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
@@ -96,7 +105,6 @@ export default function OrderDetail() {
               <div className="lg:flex items-center gap-x-2" key={field.id}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4">
                   {itemFields.map((itemField) => {
-                    // Conditionally determine the label based on the field name
                     let label = "";
                     switch (itemField) {
                       case "productName":
@@ -115,21 +123,20 @@ export default function OrderDetail() {
                         label = "Unit Price(INR)";
                         break;
                     }
-
-                    // Conditionally determine the className
                     const className =
                       itemField === "unitPrice" || itemField === "productName"
                         ? "lg:col-span-2"
                         : "col-span-1";
-
-                    // Conditionally make fields required (example: 'sku' is not required)
                     const required = itemField !== "sku";
-
                     return (
                       <FormInput
                         key={itemField}
                         control={form.control}
-                        name={`items.${index}.${itemField}` as const}
+                        name={
+                          `items.${index}.${itemField}` as keyof z.infer<
+                            typeof orderFormSchema
+                          >
+                        }
                         label={label}
                         className={className}
                         type={
@@ -162,16 +169,7 @@ export default function OrderDetail() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() =>
-                append({
-                  productName: "",
-                  sku: "",
-                  hsn: "",
-                  qty: "",
-                  unitPrice: "",
-                  igst: "0",
-                })
-              }
+              onClick={() => append({ ...itemTemplate })}
               className="flex items-center gap-2">
               <Plus className="w-4 h-4" /> Add Item
             </Button>
@@ -270,15 +268,20 @@ const ShipmentSelection = ({
     </section>
   );
 };
+type OrderFormFields = keyof z.infer<typeof orderFormSchema>;
+const shipmentFields: { name: OrderFormFields; label: string; unit: string }[] =
+  [
+    { name: "actualWeight", label: "Actual Weight", unit: "KG" },
+    { name: "length", label: "Length", unit: "CM" },
+    { name: "breadth", label: "Breadth", unit: "CM" },
+    { name: "height", label: "Height", unit: "CM" },
+  ];
 
-const shipmentFields = [
-  { name: "actualWeight", label: "Actual Weight", unit: "KG" },
-  { name: "length", label: "Length", unit: "CM" },
-  { name: "breadth", label: "Breadth", unit: "CM" },
-  { name: "height", label: "Height", unit: "CM" },
-];
-
-const ShipmentDetails = ({ form }) => {
+const ShipmentDetails = ({
+  form,
+}: {
+  form: UseFormReturn<z.infer<typeof orderFormSchema>>;
+}) => {
   return (
     <section className="space-y-4">
       <h2 className="text-2xl font-bold">Shipment Details</h2>
@@ -307,6 +310,7 @@ const ShipmentDetails = ({ form }) => {
                       {...field}
                       placeholder="0.00"
                       className="rounded-r-none"
+                      value={typeof field.value === "string" ? field.value : ""}
                     />
                     <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-input bg-muted text-muted-foreground text-sm">
                       {unit}

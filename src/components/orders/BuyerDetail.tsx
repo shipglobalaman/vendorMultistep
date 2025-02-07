@@ -116,7 +116,7 @@ export default function BuyerDetail() {
               <h2 className="text-xl font-semibold mb-6">
                 Buyer Shipping Details
               </h2>
-              <div className="md:grid grid-cols-3 gap-6 space-y-5 md:space-y-0">
+              <div className="lg:grid grid-cols-3 gap-6 space-y-5 lg:space-y-0">
                 <FormInput
                   key="shippingFirstName"
                   control={form.control}
@@ -194,7 +194,7 @@ export default function BuyerDetail() {
                 required={true}
               />
             </div>
-            <div className="grid md:grid-cols-3 gap-6 mt-6">
+            <div className="grid lg:grid-cols-3 gap-6 mt-6">
               <FormInput
                 key="shippingPincode"
                 control={form.control}

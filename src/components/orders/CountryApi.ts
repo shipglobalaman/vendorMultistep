@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 
 interface CountryAPIResponse {
-  name: { common: string };
-  cca2: string;
+  country_iso2: string;
+  country_display: string;
 }
 
 interface StateAPIResponse {
-  name: string;
-  iso2: string;
+  state_name: string;
 }
-
 interface Country {
   name: string;
   code: string;
@@ -25,17 +23,31 @@ export const useCountries = () => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    fetch("https://restcountries.com/v3.1/all?fields=name,cca2")
-      .then((response) => response.json())
-      .then((data: CountryAPIResponse[]) => {
-        const formattedCountries: Country[] = data.map((country) => ({
-          name: country.name.common,
-          code: country.cca2,
-        }));
-        setCountries(formattedCountries);
-      })
-      .catch((error) => console.error("Error fetching countries:", error))
-      .finally(() => setLoading(false));
+    const fetchCountries = async () => {
+      try {
+        const response = await fetch(
+          "https://api.fr.stg.shipglobal.in/api/v1/location/countries"
+        );
+        const result = await response.json();
+        console.log(result);
+        if (result.data?.countries) {
+          const formattedCountries = result.data.countries.map(
+            (country: CountryAPIResponse) => ({
+              code: country.country_iso2,
+              name: country.country_display,
+            })
+          );
+          console.log(formattedCountries);
+          setCountries(formattedCountries);
+        }
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCountries();
   }, []);
 
   return { countries, loading };
@@ -48,25 +60,38 @@ export const useStates = (countryCode: string) => {
   useEffect(() => {
     if (!countryCode) return;
 
-    fetch(
-      `https://api.countrystatecity.in/v1/countries/${countryCode}/states`,
-      {
-        headers: {
-          "X-CSCAPI-KEY":
-            "c3lNZk9ZOU5RUzk2cUxOWDNvbTNzV0RCdm03SzVLaVNPa0FiRE1jeg==",
-        },
+    const fetchStates = async () => {
+      try {
+        const response = await fetch(
+          "https://api.fr.stg.shipglobal.in/api/v1/location/states",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ state_country_code: countryCode }),
+          }
+        );
+
+        const result = await response.json();
+
+        if (result.data?.states) {
+          const formattedStates = result.data.states.map(
+            (state: StateAPIResponse) => ({
+              code: state.state_name,
+              name: state.state_name,
+            })
+          );
+          setStates(formattedStates);
+        }
+      } catch (error) {
+        console.error("Error fetching states:", error);
+      } finally {
+        setLoading(false);
       }
-    )
-      .then((response) => response.json())
-      .then((data: StateAPIResponse[]) => {
-        const formattedStates: State[] = data.map((state) => ({
-          name: state.name,
-          code: state.iso2,
-        }));
-        setStates(formattedStates);
-      })
-      .catch((error) => console.error("Error fetching states:", error))
-      .finally(() => setLoading(false));
+    };
+
+    fetchStates();
   }, [countryCode]);
 
   return { states, loading };
