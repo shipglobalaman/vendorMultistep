@@ -30,6 +30,15 @@ export default function OrderDetail() {
   });
 
   const itemFields = ["productName", "sku", "hsn", "qty", "unitPrice"];
+  const itemTemplate = {
+    productName: "",
+    sku: "",
+    hsn: "",
+    qty: "",
+    unitPrice: "",
+    igst: "0",
+  };
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "items",
@@ -96,7 +105,6 @@ export default function OrderDetail() {
               <div className="lg:flex items-center gap-x-2" key={field.id}>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4">
                   {itemFields.map((itemField) => {
-                    // Conditionally determine the label based on the field name
                     let label = "";
                     switch (itemField) {
                       case "productName":
@@ -115,16 +123,11 @@ export default function OrderDetail() {
                         label = "Unit Price(INR)";
                         break;
                     }
-
-                    // Conditionally determine the className
                     const className =
                       itemField === "unitPrice" || itemField === "productName"
                         ? "lg:col-span-2"
                         : "col-span-1";
-
-                    // Conditionally make fields required (example: 'sku' is not required)
                     const required = itemField !== "sku";
-
                     return (
                       <FormInput
                         key={itemField}
@@ -166,16 +169,7 @@ export default function OrderDetail() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() =>
-                append({
-                  productName: "",
-                  sku: "",
-                  hsn: "",
-                  qty: "",
-                  unitPrice: "",
-                  igst: "0",
-                })
-              }
+              onClick={() => append({ ...itemTemplate })}
               className="flex items-center gap-2">
               <Plus className="w-4 h-4" /> Add Item
             </Button>
