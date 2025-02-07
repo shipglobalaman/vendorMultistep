@@ -26,7 +26,7 @@ export default function PlaceOrder() {
     <div className="container max-w-4xl mx-auto p-6 space-y-8">
       <h1 className="text-2xl font-bold">Order Details</h1>
 
-      <div className="flex gap-8 justify-between">
+      <div className="sm:flex sm:space-y-0 space-y-4 gap-8 justify-between">
         <div className="w-3/5 space-y-2">
           <h2 className="text-lg text-muted-foreground">Pickup Address:</h2>
           <div className="space-y-1">
