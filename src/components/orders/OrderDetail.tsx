@@ -175,7 +175,6 @@ export default function OrderDetail() {
             </Button>
           </div>
         </div>
-
         <div className="flex justify-between items-center pt-4">
           <Button
             onClick={() => {
@@ -186,7 +185,7 @@ export default function OrderDetail() {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Button>
-          <Button type="submit">Submit</Button>
+          <Button type="submit">Continue</Button>
         </div>
       </form>
     </Form>
@@ -207,7 +206,6 @@ const shipmentOptions = [
     extra: "Only ShipGlobal Direct",
   },
 ];
-
 const ShipmentSelection = ({
   form,
 }: {
@@ -228,7 +226,6 @@ const ShipmentSelection = ({
         </a>
         .
       </p>
-
       <FormField
         control={form.control}
         name="shipmentType"
@@ -268,6 +265,7 @@ const ShipmentSelection = ({
     </section>
   );
 };
+
 type OrderFormFields = keyof z.infer<typeof orderFormSchema>;
 const shipmentFields: { name: OrderFormFields; label: string; unit: string }[] =
   [
@@ -292,7 +290,6 @@ const ShipmentDetails = ({
         </a>
         .
       </p>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {shipmentFields.map(({ name, label, unit }) => (
           <FormField
