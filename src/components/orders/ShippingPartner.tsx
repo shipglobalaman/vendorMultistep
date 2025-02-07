@@ -131,8 +131,6 @@ export default function ShippingPartner() {
     if (selectedShippingOption) {
       dispatch(setFormData({ shippingOption: selectedShippingOption }));
       dispatch(setStep(formData.step + 1));
-    } else {
-      console.log("No shipping partner selected");
     }
   };
 
