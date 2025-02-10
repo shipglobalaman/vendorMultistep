@@ -1,13 +1,14 @@
-import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/components/orders/store/Store";
-import { setFormData, setStep } from "@/components/orders/store/OrderSlice";
+import {
+  setFormData,
+  setActiveStep,
+} from "@/components/orders/store/OrderSlice";
+import { CircleCheck } from "lucide-react";
 
 interface ShippingOption {
   id: string;
@@ -49,58 +50,6 @@ const shippingOptions: ShippingOption[] = [
   },
 ];
 
-function ShippingOptionCard({
-  option,
-  isSelected,
-  onSelect,
-}: {
-  option: ShippingOption;
-  isSelected: boolean;
-  onSelect: (id: string) => void;
-}) {
-  return (
-    <Card
-      onClick={() => onSelect(option.id)}
-      className={`p-4 text-sm border border-dashed cursor-pointer ${
-        isSelected ? "border-blue-500 bg-blue-50" : "border-gray-300"
-      }`}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
-        <div className="flex items-center gap-3">
-          <input
-            type="radio"
-            id={option.id}
-            name="shippingOption"
-            checked={isSelected}
-            onChange={() => onSelect(option.id)}
-            className="w-5 h-5 text-blue-500 border rounded-full"
-          />
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold">{option.name}</span>
-              {option.isRecommended && (
-                <Badge
-                  variant="secondary"
-                  className="bg-green-100 text-green-700">
-                  Cheapest
-                </Badge>
-              )}
-            </div>
-            {option.hasDuties && (
-              <div className="text-red-500 text-sm">
-                Duties will be charged, if applicable.
-              </div>
-            )}
-            <div className="text-gray-500">
-              Estimated Transit: {option.transitTime}
-            </div>
-          </div>
-        </div>
-        <div className="text-xl font-bold mt-2 sm:mt-0">Rs. {option.price}</div>
-      </div>
-    </Card>
-  );
-}
-
 export default function ShippingPartner() {
   const dispatch = useDispatch();
   const formData = useSelector((state: RootState) => state.order);
@@ -137,14 +86,15 @@ export default function ShippingPartner() {
     }
   }, [form, formData]);
 
-  const onSubmit = (data: { shippingOption: string }) => {
+  const handleSelect = (id: string) => {
+    form.setValue("shippingOption", id);
     const selectedShippingOption = shippingOptions.find(
-      (option) => option.id === data.shippingOption
+      (option) => option.id === id
     );
     if (selectedShippingOption) {
       dispatch(setFormData({ shippingOption: selectedShippingOption }));
-      dispatch(setStep(formData.step + 1));
     }
+    dispatch(setActiveStep(5));
   };
 
   return (
@@ -166,43 +116,87 @@ export default function ShippingPartner() {
       <div className="flex justify-center">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {weightData.map((item, index) => (
-            <Card
+            <div
               key={index}
-              className="p-2 text-center border border-dashed w-40">
+              className={`${
+                item.label === "Billed Weight"
+                  ? "bg-orange-100 text-orange-400 border-orange-400"
+                  : "bg-gray-50 text-gray-500"
+              } p-2 text-center border w-30 rounded-lg`}>
               <div className="font-bold">{item.value}kg</div>
-              <div className="text-gray-500 text-xs">{item.label}</div>
-            </Card>
+              <div className="text-xs">{item.label}</div>
+            </div>
           ))}
         </div>
       </div>
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            {shippingOptions.map((option) => (
-              <ShippingOptionCard
-                key={option.id}
-                option={option}
-                isSelected={form.watch("shippingOption") === option.id}
-                onSelect={(id) => form.setValue("shippingOption", id)}
-              />
-            ))}
-          </div>
-          <div className="flex justify-between items-center pt-4">
-            <Button
-              type="button"
-              onClick={() => {
-                dispatch(setStep(formData.step - 1));
-              }}
-              variant="ghost"
-              className="text-blue-500 hover:text-blue-600">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            <Button type="submit">Continue</Button>
-          </div>
-        </form>
-      </Form>
+      <table className="mt-3 w-full">
+        <thead>
+          <tr className="grid grid-cols-1 sm:grid-cols-4 font-normal py-2 border rounded-md mb-4 text-slate-500 bg-slate-50 text-center">
+            <th className="font-normal align-middle">Courier Partner</th>
+            <th className="font-normal align-middle">Delivery Time</th>
+            <th className="font-normal">Shipment Rate</th>
+            <th className="font-normal">Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          <Form {...form}>
+            <div className="space-y-2">
+              {shippingOptions.map((option) => (
+                <ShippingOptionCard
+                  key={option.id}
+                  option={option}
+                  isSelected={form.watch("shippingOption") === option.id}
+                  onSelect={handleSelect}
+                />
+              ))}
+            </div>
+            <div className="flex justify-end">
+              <Button className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 mt-6">
+                Pay & Add Order
+              </Button>
+            </div>
+          </Form>
+        </tbody>
+      </table>
     </div>
+  );
+}
+
+function ShippingOptionCard({
+  option,
+  isSelected,
+  onSelect,
+}: {
+  option: ShippingOption;
+  isSelected: boolean;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <tr
+      key={option.id}
+      onClick={() => onSelect(option.id)}
+      className={`grid grid-cols-1 sm:grid-cols-4 py-4 ${
+        option.name !== "ShipGlobal Direct" ? "pt-8" : ""
+      }  border rounded-md mb-2 cursor-pointer text-center relative overflow-hidden 
+        border-gray-300
+      `}>
+      {option.name !== "ShipGlobal Direct" && (
+        <div className="bg-blue-50 absolute w-full text-start text-xs px-4 py-1 text-red-500">
+          Duties will be charged, if applicable.
+        </div>
+      )}
+      <td className="font-semibold text-sm">{option.name}</td>
+      <td className="text-gray-500">{option.transitTime}</td>
+      <td className="text-gray-500">Rs. {option.price}</td>
+      <td>
+        <CircleCheck
+          className={`w-5 h-5 mx-auto ${
+            isSelected
+              ? "fill-green-500 text-white"
+              : "text-white fill-gray-300"
+          }`}
+        />
+      </td>
+    </tr>
   );
 }

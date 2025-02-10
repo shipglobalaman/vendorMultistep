@@ -20,7 +20,7 @@ export default function PrivateLayout() {
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="bg-gray-100">
+      <SidebarInset className="bg-gray-50">
         <header className="flex border-b fixed w-full top-0 bg-background h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 z-20">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="ml-4" />

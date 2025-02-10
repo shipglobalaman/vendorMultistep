@@ -1,8 +1,13 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { z } from "zod";
-import type { formSchema, orderFormSchema } from "@/zod validation/Schema";
+import type {
+  formSchema,
+  orderFormSchema,
+  consignorSchema,
+} from "@/zod validation/Schema";
 
 type FormData = z.infer<typeof formSchema> &
+  z.infer<typeof consignorSchema> &
   z.infer<typeof orderFormSchema> & {
     step: number;
     shippingOption?: {
@@ -18,10 +23,14 @@ type OrderFormData = z.infer<typeof orderFormSchema>;
 
 interface OrderState extends FormData, OrderFormData {
   step: number;
+  activeSection: string;
+  activeStep: number;
 }
 
 const initialState: OrderState = {
   step: 1,
+  activeSection: "consignor",
+  activeStep: 0,
   pickupAddress: "",
   shippingFirstName: "",
   shippingLastName: "",
@@ -80,9 +89,21 @@ const orderSlice = createSlice({
     setStep: (state, action: PayloadAction<number>) => {
       state.step = action.payload;
     },
+    setActiveSection: (state, action: PayloadAction<string>) => {
+      state.activeSection = action.payload;
+    },
+    setActiveStep: (state, action: PayloadAction<number>) => {
+      state.activeStep = action.payload;
+    },
     resetForm: () => initialState,
   },
 });
 
-export const { setFormData, setStep, resetForm } = orderSlice.actions;
+export const {
+  setFormData,
+  setStep,
+  setActiveSection,
+  setActiveStep,
+  resetForm,
+} = orderSlice.actions;
 export default orderSlice.reducer;
