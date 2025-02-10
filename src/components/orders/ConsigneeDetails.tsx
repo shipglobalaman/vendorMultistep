@@ -17,10 +17,6 @@ import {
   setActiveStep,
 } from "@/components/orders/store/OrderSlice";
 
-// interface BuyerDetailProps {
-//   setActiveSection: React.Dispatch<React.SetStateAction<string>>;
-//   setActiveStep: React.Dispatch<React.SetStateAction<number>>;
-// }
 export default function BuyerDetail() {
   const dispatch = useDispatch();
   const formData = useSelector((state: RootState) => state.order);

@@ -1,4 +1,11 @@
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useForm, useFieldArray, type UseFormReturn } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type * as z from "zod";
+import { Plus, Trash2 } from "lucide-react";
+
+import { orderFormSchema } from "@/zod validation/Schema";
 import type { RootState } from "@/components/orders/store/Store";
 import {
   setFormData,
@@ -6,24 +13,19 @@ import {
   setActiveSection,
   setActiveStep,
 } from "@/components/orders/store/OrderSlice";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray, type UseFormReturn } from "react-hook-form";
-import type * as z from "zod";
-import { Plus, Trash2 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
+  FormControl,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useEffect } from "react";
-import { orderFormSchema } from "@/zod validation/Schema";
-import { FormInput } from "../elements/FormInput";
 import { Badge } from "../ui/badge";
+import { FormInput } from "../elements/FormInput";
 
 export default function OrderDetail() {
   const dispatch = useDispatch();
@@ -49,7 +51,6 @@ export default function OrderDetail() {
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="container mx-auto space-y-8">
-        {/* <ShipmentSelection form={form} /> */}
         <div className="space-y-6">
           <OrderDetails form={form} />
           <BoxMeasurements form={form} />

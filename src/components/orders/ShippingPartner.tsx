@@ -9,6 +9,7 @@ import {
   setActiveStep,
 } from "@/components/orders/store/OrderSlice";
 import { CircleCheck } from "lucide-react";
+import clsx from "clsx";
 
 interface ShippingOption {
   id: string;
@@ -59,11 +60,7 @@ export default function ShippingPartner() {
     (Number(length) * Number(breadth) * Number(height)) /
     5000
   ).toFixed(2);
-
-  const billedWeight =
-    Number(actualWeight) > Number(volumetricWeight)
-      ? actualWeight
-      : volumetricWeight;
+  const billedWeight = Math.max(Number(actualWeight), Number(volumetricWeight));
 
   const weightData = [
     { value: actualWeight, label: "Dead Weight" },
@@ -88,12 +85,9 @@ export default function ShippingPartner() {
 
   const handleSelect = (id: string) => {
     form.setValue("shippingOption", id);
-    const selectedShippingOption = shippingOptions.find(
-      (option) => option.id === id
-    );
-    if (selectedShippingOption) {
-      dispatch(setFormData({ shippingOption: selectedShippingOption }));
-    }
+    const selectedOption = shippingOptions.find((option) => option.id === id);
+    if (selectedOption)
+      dispatch(setFormData({ shippingOption: selectedOption }));
     dispatch(setActiveStep(5));
   };
 
@@ -102,13 +96,12 @@ export default function ShippingPartner() {
       <h1 className="text-2xl font-bold mb-4">Select Shipping Partner</h1>
       <p className="text-gray-500 mb-4 text-sm">
         All shipments via ShipGlobal Direct service are Delivered Duty Paid
-        (DDP), hence no extra duty will be billed on the consignee or the
-        shipper. Rates are inclusive of covid & fuel surcharge, exclusive of GST
-        and ex-Delhi Hub.
+        (DDP)...
       </p>
       <p className="text-gray-500 mb-8 text-sm">
-        If you need more info, please call/whatsapp at
+        If you need more info, call/WhatsApp at
         <a href="tel:011-422-77-777" className="text-blue-500">
+          {" "}
           011-422 77 777
         </a>
         .
@@ -118,11 +111,12 @@ export default function ShippingPartner() {
           {weightData.map((item, index) => (
             <div
               key={index}
-              className={`${
+              className={clsx(
+                "p-2 text-center border w-30 rounded-lg",
                 item.label === "Billed Weight"
                   ? "bg-orange-100 text-orange-400 border-orange-400"
                   : "bg-gray-50 text-gray-500"
-              } p-2 text-center border w-30 rounded-lg`}>
+              )}>
               <div className="font-bold">{item.value}kg</div>
               <div className="text-xs">{item.label}</div>
             </div>
@@ -132,10 +126,10 @@ export default function ShippingPartner() {
       <table className="mt-3 w-full">
         <thead>
           <tr className="grid grid-cols-1 sm:grid-cols-4 font-normal py-2 border rounded-md mb-4 text-slate-500 bg-slate-50 text-center">
-            <th className="font-normal align-middle">Courier Partner</th>
-            <th className="font-normal align-middle">Delivery Time</th>
-            <th className="font-normal">Shipment Rate</th>
-            <th className="font-normal">Select</th>
+            <th>Courier Partner</th>
+            <th>Delivery Time</th>
+            <th>Shipment Rate</th>
+            <th>Select</th>
           </tr>
         </thead>
         <tbody>
@@ -175,12 +169,11 @@ function ShippingOptionCard({
     <tr
       key={option.id}
       onClick={() => onSelect(option.id)}
-      className={`grid grid-cols-1 sm:grid-cols-4 py-4 ${
-        option.name !== "ShipGlobal Direct" ? "pt-8" : ""
-      }  border rounded-md mb-2 cursor-pointer text-center relative overflow-hidden 
-        border-gray-300
-      `}>
-      {option.name !== "ShipGlobal Direct" && (
+      className={clsx(
+        "grid grid-cols-1 sm:grid-cols-4 py-4 border rounded-md mb-2 cursor-pointer text-center relative overflow-hidden border-gray-300",
+        { "pt-8": option.name !== "ShipGlobal Direct" }
+      )}>
+      {option.hasDuties && (
         <div className="bg-blue-50 absolute w-full text-start text-xs px-4 py-1 text-red-500">
           Duties will be charged, if applicable.
         </div>
@@ -190,11 +183,12 @@ function ShippingOptionCard({
       <td className="text-gray-500">Rs. {option.price}</td>
       <td>
         <CircleCheck
-          className={`w-5 h-5 mx-auto ${
+          className={clsx(
+            "w-5 h-5 mx-auto",
             isSelected
               ? "fill-green-500 text-white"
-              : "text-white fill-gray-300"
-          }`}
+              : "fill-gray-300 text-white"
+          )}
         />
       </td>
     </tr>

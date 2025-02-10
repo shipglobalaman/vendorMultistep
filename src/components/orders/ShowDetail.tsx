@@ -142,7 +142,7 @@ const ItemDetails = ({
               </p>
             </div>
           </div>
-          {visibleItems.map((item: any, index: number) => (
+          {visibleItems.map((item:any, index: number) => (
             <div key={index} className="grid grid-cols-3 gap-1 pb-2">
               <div className="space-y-1">
                 <p className="text-gray-400">Product</p>
@@ -188,7 +188,7 @@ const ItemDetails = ({
   );
 };
 
-const Summary = ({ shippingOption }: any) => (
+const Summary = ({ shippingOption }: { shippingOption: { price: number } }) => (
   <div className="rounded-lg p-3 px-0 pb-3 mt-3 border border-yellow-750 bg-orange-50">
     <div className="px-5 py-1.5 text-base font-semibold border-b border-orange-100 text-orange-500">
       Summary
