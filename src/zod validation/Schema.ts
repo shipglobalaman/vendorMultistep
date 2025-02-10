@@ -1,7 +1,9 @@
 import * as z from "zod";
 
+export const consignorSchema = z.object({
+  pickupAddress: z.string().min(1, "Please select a pickup address")
+});
 export const formSchema = z.object({
-  pickupAddress: z.string().min(1, "Please select a pickup address"),
   shippingFirstName: z.string().min(1, "First name is required"),
   shippingLastName: z.string().min(1, "Last name is required"),
   shippingMobile: z

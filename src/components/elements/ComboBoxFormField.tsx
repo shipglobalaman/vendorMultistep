@@ -53,7 +53,7 @@ function ComboBox({
           role="combobox"
           aria-expanded={open}
           className="w-full mt-2 justify-between h-auto text-left font-normal bg-gray-50 flex items-center">
-          <span className="w-32 truncate">
+          <span className="w-56 truncate">
             {loading
               ? "Loading..."
               : options.find((option) => option.value === value)?.label ||
