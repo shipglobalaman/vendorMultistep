@@ -1,11 +1,13 @@
+import { Check } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { clsx } from "clsx";
+
 import { Section } from "@/components/orders/AddOrders";
 import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import { Check } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/components/orders/store/Store";
 import {
   setActiveSection,
@@ -24,22 +26,22 @@ export function SectionItem({ section, index, component }: SectionItemProps) {
   const { activeSection, activeStep } = formData;
   const isActive = activeSection === section.value;
   const Component = component;
+
   return (
     <AccordionItem value={section.value}>
       <AccordionTrigger
-        className={`${
+        className={clsx(
+          "p-4 flex border justify-between",
           isActive ? "bg-gray-100" : "bg-white"
-        } p-4 flex border justify-between`}>
+        )}>
         <div className="flex gap-4">
-          {activeStep > index ? (
-            <span className="bg-green-500 text-white p-1 w-5 h-5 rounded-sm flex items-center justify-center">
-              <Check size={16} />
-            </span>
-          ) : (
-            <span className="bg-black text-white p-1 w-5 h-5 rounded-sm flex items-center justify-center">
-              {index}
-            </span>
-          )}
+          <span
+            className={clsx(
+              "p-1 w-5 h-5 rounded-sm flex items-center justify-center text-white",
+              activeStep > index ? "bg-green-500" : "bg-black"
+            )}>
+            {activeStep > index ? <Check size={16} /> : index}
+          </span>
           <span>{section.label}</span>
         </div>
         {activeStep > index && (
