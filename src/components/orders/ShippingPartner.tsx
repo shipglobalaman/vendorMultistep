@@ -10,6 +10,7 @@ import {
 } from "@/components/orders/store/OrderSlice";
 import { CircleCheck } from "lucide-react";
 import clsx from "clsx";
+import { fetchAPI } from "./Api";
 
 interface ShippingOption {
   provider_code: string;
@@ -28,11 +29,6 @@ interface ShippingOption {
   hasDuties?: boolean;
   isRecommended?: boolean;
 }
-
-const API_URL =
-  "https://api.fr.stg.shipglobal.in/api/v1/orders/get-shipper-rates";
-const API_TOKEN =
-  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbnRpdHlJZCI6MzAwNjcsImNyZWF0ZWRfYXQiOnsiZGF0ZSI6IjIwMjUtMDItMDggMTY6NTM6MzQuOTI4NjA0IiwidGltZXpvbmVfdHlwZSI6MywidGltZXpvbmUiOiJBc2lhL0tvbGthdGEifSwiZXhwaXJlc19hdCI6eyJkYXRlIjoiMjAyNS0wMy0xMCAxNjo1MzozNC45Mjg2MDciLCJ0aW1lem9uZV90eXBlIjozLCJ0aW1lem9uZSI6IkFzaWEvS29sa2F0YSJ9LCJpZCI6IjM1MWM1NDBhLWY4YTEtNDhjMy1hNWIyLTk5MmM2MDg1OGY4NSIsInJlbW90ZV9lbnRpdHlfaWQiOjB9.hFbb_XIYMSl_APZF0SdTwYkrnMJDOphtkerCyk2LF5s";
 
 export default function ShippingPartner() {
   const dispatch = useDispatch();
@@ -62,23 +58,15 @@ export default function ShippingPartner() {
   useEffect(() => {
     async function fetchShippingOptions() {
       try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${API_TOKEN}`,
-          },
-          body: JSON.stringify({
-            customer_shipping_postcode: shippingPincode,
-            customer_shipping_country_code: shippingCountry,
-            package_weight: billedWeight,
-            package_length: length,
-            package_breadth: breadth,
-            package_height: height,
-          }),
+        const data = await fetchAPI("get-shipper-rates", "POST", {
+          customer_shipping_postcode: shippingPincode,
+          customer_shipping_country_code: shippingCountry,
+          package_weight: billedWeight,
+          package_length: length,
+          package_breadth: breadth,
+          package_height: height,
         });
 
-        const data = await response.json();
         setShippingOptions(data.data.rate || []);
       } catch (error) {
         console.error("Error fetching shipping options:", error);

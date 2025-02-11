@@ -26,11 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "../ui/badge";
 import { FormInput } from "../elements/FormInput";
-
-const API_URL =
-  "https://api.fr.stg.shipglobal.in/api/v1/orders/validate-order-invoice";
-const API_TOKEN =
-  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbnRpdHlJZCI6MzAwNjcsImNyZWF0ZWRfYXQiOnsiZGF0ZSI6IjIwMjUtMDItMDggMTY6NTM6MzQuOTI4NjA0IiwidGltZXpvbmVfdHlwZSI6MywidGltZXpvbmUiOiJBc2lhL0tvbGthdGEifSwiZXhwaXJlc19hdCI6eyJkYXRlIjoiMjAyNS0wMy0xMCAxNjo1MzozNC45Mjg2MDciLCJ0aW1lem9uZV90eXBlIjozLCJ0aW1lem9uZSI6IkFzaWEvS29sa2F0YSJ9LCJpZCI6IjM1MWM1NDBhLWY4YTEtNDhjMy1hNWIyLTk5MmM2MDg1OGY4NSIsInJlbW90ZV9lbnRpdHlfaWQiOjB9.hFbb_XIYMSl_APZF0SdTwYkrnMJDOphtkerCyk2LF5s";
+import { fetchAPI } from "./Api";
 
 export default function OrderDetail() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -48,35 +44,23 @@ export default function OrderDetail() {
   async function onSubmit(values: z.infer<typeof orderFormSchema>) {
     try {
       setErrorMessage("");
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${API_TOKEN}`,
-        },
-        body: JSON.stringify({
-          csbv: "0",
-          currency_code: values.invoiceCurrency,
-          package_weight: values.actualWeight,
-          package_height: values.height,
-          package_length: values.length,
-          package_breadth: values.breadth,
-          vendor_order_item: values.items.map((item) => ({
-            vendor_order_item_name: item.productName,
-            vendor_order_item_sku: item.sku || "",
-            vendor_order_item_quantity: Number(item.qty),
-            vendor_order_item_unit_price: Number(item.unitPrice),
-            vendor_order_item_hsn: item.hsn,
-            vendor_order_item_tax_rate: item.igst || "0",
-          })),
-        }),
+
+      await fetchAPI("validate-order-invoice", "POST", {
+        csbv: "0",
+        currency_code: values.invoiceCurrency,
+        package_weight: values.actualWeight,
+        package_height: values.height,
+        package_length: values.length,
+        package_breadth: values.breadth,
+        vendor_order_item: values.items.map((item) => ({
+          vendor_order_item_name: item.productName,
+          vendor_order_item_sku: item.sku || "",
+          vendor_order_item_quantity: Number(item.qty),
+          vendor_order_item_unit_price: Number(item.unitPrice),
+          vendor_order_item_hsn: item.hsn,
+          vendor_order_item_tax_rate: item.igst || "0",
+        })),
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Invoice validation failed");
-      }
 
       dispatch(setFormData(values));
       dispatch(setStep(formData.step + 1));
@@ -86,7 +70,6 @@ export default function OrderDetail() {
       setErrorMessage((error as Error).message);
     }
   }
-
   return (
     <Form {...form}>
       <form
