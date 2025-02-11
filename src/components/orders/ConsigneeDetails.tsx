@@ -24,13 +24,9 @@ export default function BuyerDetail() {
   const [selectedShippingCountry, setSelectedShippingCountry] = useState("");
   const [selectedBillingCountry, setSelectedBillingCountry] = useState("");
   const { countries, loading: countriesLoading } = useCountries();
-  const { states: shippingStates, loading: statesLoading } = useStates(
-    selectedShippingCountry
-  );
-  const { states: billingStates, loading: billingStatesLoading } = useStates(
-    selectedBillingCountry
-  );
-  const [checked, setChecked] = useState(formData.sameAsBilling);
+  const { states: shippingStates } = useStates(selectedShippingCountry);
+  const { states: billingStates } = useStates(selectedBillingCountry);
+  const [checked, setChecked] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -175,7 +171,6 @@ export default function BuyerDetail() {
               placeholder="Select a state"
               searchPlaceholder="Search state..."
               emptyMessage="No state found."
-              loading={statesLoading}
               required={true}
             />
             <FormInput
@@ -194,7 +189,7 @@ export default function BuyerDetail() {
             />
           </div>
         </div>
-        <div className="mt-12">
+        <div className="mt-10">
           <FormInput
             control={form.control}
             name="sameAsBilling"
@@ -204,41 +199,8 @@ export default function BuyerDetail() {
             onCheckedChange={setChecked}
           />
         </div>
-        <div className={`${checked ? "hidden" : "mt-12"}`}>
+        <div className={`${checked ? "hidden" : "mt-10"}`}>
           <h2 className="text-base font-semibold mb-6">Billing Address</h2>
-          <div className="md:grid grid-cols-3 gap-6 space-y-5 md:space-y-0">
-            <FormInput
-              key="billingFirstName"
-              control={form.control}
-              name="billingFirstName"
-              label="First Name"
-            />
-            <FormInput
-              key="billingLastName"
-              control={form.control}
-              name="billingLastName"
-              label="Last Name"
-            />
-            <FormInput
-              key="billingMobile"
-              control={form.control}
-              name="billingMobile"
-              label="Mobile No."
-            />
-            <FormInput
-              key="billingAlternateMobile"
-              control={form.control}
-              name="billingAlternateMobile"
-              label="Alternate Mobile No."
-            />
-            <FormInput
-              key="billingEmail"
-              control={form.control}
-              name="billingEmail"
-              label="Email Id"
-            />
-          </div>
-
           <div className="mt-6 grid md:grid-cols-3 gap-6">
             <FormInput
               key="billingAddress1"
@@ -284,7 +246,6 @@ export default function BuyerDetail() {
               placeholder="Select a state"
               searchPlaceholder="Search state..."
               emptyMessage="No state found."
-              loading={billingStatesLoading}
               required={true}
             />
             <FormInput

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm, useFieldArray, type UseFormReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,23 +27,64 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "../ui/badge";
 import { FormInput } from "../elements/FormInput";
 
+const API_URL =
+  "https://api.fr.stg.shipglobal.in/api/v1/orders/validate-order-invoice";
+const API_TOKEN =
+  "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbnRpdHlJZCI6MzAwNjcsImNyZWF0ZWRfYXQiOnsiZGF0ZSI6IjIwMjUtMDItMDggMTY6NTM6MzQuOTI4NjA0IiwidGltZXpvbmVfdHlwZSI6MywidGltZXpvbmUiOiJBc2lhL0tvbGthdGEifSwiZXhwaXJlc19hdCI6eyJkYXRlIjoiMjAyNS0wMy0xMCAxNjo1MzozNC45Mjg2MDciLCJ0aW1lem9uZV90eXBlIjozLCJ0aW1lem9uZSI6IkFzaWEvS29sa2F0YSJ9LCJpZCI6IjM1MWM1NDBhLWY4YTEtNDhjMy1hNWIyLTk5MmM2MDg1OGY4NSIsInJlbW90ZV9lbnRpdHlfaWQiOjB9.hFbb_XIYMSl_APZF0SdTwYkrnMJDOphtkerCyk2LF5s";
+
 export default function OrderDetail() {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dispatch = useDispatch();
   const formData = useSelector((state: RootState) => state.order);
   const form = useForm<z.infer<typeof orderFormSchema>>({
     resolver: zodResolver(orderFormSchema),
     defaultValues: useSelector((state: RootState) => state.order),
   });
-
+  const invoiceCurrency = form.watch("invoiceCurrency");
   useEffect(() => {
     form.reset(formData);
   }, [form, formData]);
 
-  function onSubmit(values: z.infer<typeof orderFormSchema>) {
-    dispatch(setFormData(values));
-    dispatch(setStep(formData.step + 1));
-    dispatch(setActiveSection("shipping"));
-    dispatch(setActiveStep(4));
+  async function onSubmit(values: z.infer<typeof orderFormSchema>) {
+    try {
+      setErrorMessage("");
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_TOKEN}`,
+        },
+        body: JSON.stringify({
+          csbv: "0",
+          currency_code: values.invoiceCurrency,
+          package_weight: values.actualWeight,
+          package_height: values.height,
+          package_length: values.length,
+          package_breadth: values.breadth,
+          vendor_order_item: values.items.map((item) => ({
+            vendor_order_item_name: item.productName,
+            vendor_order_item_sku: item.sku || "",
+            vendor_order_item_quantity: Number(item.qty),
+            vendor_order_item_unit_price: Number(item.unitPrice),
+            vendor_order_item_hsn: item.hsn,
+            vendor_order_item_tax_rate: item.igst || "0",
+          })),
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Invoice validation failed");
+      }
+
+      dispatch(setFormData(values));
+      dispatch(setStep(formData.step + 1));
+      dispatch(setActiveSection("shipping"));
+      dispatch(setActiveStep(4));
+    } catch (error) {
+      setErrorMessage((error as Error).message);
+    }
   }
 
   return (
@@ -54,9 +95,13 @@ export default function OrderDetail() {
         <div className="space-y-6">
           <OrderDetails form={form} />
           <BoxMeasurements form={form} />
-          <ItemsDetails form={form} />
+          <ItemsDetails
+            form={form}
+            errorMessage={errorMessage}
+            invoiceCurrency={invoiceCurrency}
+          />
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end items-center">
           <Button
             size="lg"
             type="submit"
@@ -161,11 +206,13 @@ const BoxMeasurements = ({
 
 const ItemsDetails = ({
   form,
+  errorMessage,
+  invoiceCurrency,
 }: {
   form: UseFormReturn<z.infer<typeof orderFormSchema>>;
+  errorMessage?: string | null;
+  invoiceCurrency?: string;
 }) => {
-  const formData = useSelector((state: RootState) => state.order);
-  const { invoiceCurrency } = formData;
   const items = form.watch("items");
   const totalPrice = items.reduce((acc, item) => {
     const qty = Number(item.qty) || 0;
@@ -197,68 +244,73 @@ const ItemsDetails = ({
         </Badge>
       </div>
       {fields.map((field, index) => (
-        <div className="lg:flex items-center gap-x-2" key={field.id}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4">
-            {itemFields.map((itemField) => {
-              let label = "";
-              switch (itemField) {
-                case "productName":
-                  label = "Product Name";
-                  break;
-                case "sku":
-                  label = "SKU";
-                  break;
-                case "hsn":
-                  label = "HSN";
-                  break;
-                case "qty":
-                  label = "Qty";
-                  break;
-                case "unitPrice":
-                  label = "Unit Price(INR)";
-                  break;
-              }
-              const className =
-                itemField === "unitPrice" || itemField === "productName"
-                  ? "lg:col-span-2"
-                  : "col-span-1";
-              const required = itemField !== "sku";
-              return (
-                <FormInput
-                  key={itemField}
-                  control={form.control}
-                  name={
-                    `items.${index}.${itemField}` as keyof z.infer<
-                      typeof orderFormSchema
-                    >
-                  }
-                  label={label}
-                  className={className}
-                  type={
-                    itemField === "qty" || itemField === "unitPrice"
-                      ? "number"
-                      : "text"
-                  }
-                  required={required}
-                />
-              );
-            })}
+        <div>
+          <div className="lg:flex items-center gap-x-2" key={field.id}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4">
+              {itemFields.map((itemField) => {
+                let label = "";
+                switch (itemField) {
+                  case "productName":
+                    label = "Product Name";
+                    break;
+                  case "sku":
+                    label = "SKU";
+                    break;
+                  case "hsn":
+                    label = "HSN";
+                    break;
+                  case "qty":
+                    label = "Qty";
+                    break;
+                  case "unitPrice":
+                    label = `Unit Price(${invoiceCurrency})`;
+                    break;
+                }
+                const className =
+                  itemField === "unitPrice" || itemField === "productName"
+                    ? "lg:col-span-2"
+                    : "col-span-1";
+                const required = itemField !== "sku";
+                return (
+                  <FormInput
+                    key={itemField}
+                    control={form.control}
+                    name={
+                      `items.${index}.${itemField}` as keyof z.infer<
+                        typeof orderFormSchema
+                      >
+                    }
+                    label={label}
+                    className={className}
+                    type={
+                      itemField === "qty" || itemField === "unitPrice"
+                        ? "number"
+                        : "text"
+                    }
+                    required={required}
+                  />
+                );
+              })}
 
-            <FormInput
-              control={form.control}
-              name={`items.${index}.igst` as const}
-              label="IGST"
-              className="col-span-1"
-              type="select"
-              required
-              options={["0", "5", "12", "18", "28"]}
-            />
-          </div>
-          {index > 0 && (
-            <div onClick={() => remove(index)} className="mt-7">
-              <Trash2 className="w-5 h-5 text-red-500 cursor-pointer" />
+              <FormInput
+                control={form.control}
+                name={`items.${index}.igst` as const}
+                label="IGST"
+                className="col-span-1"
+                type="select"
+                required
+                options={["0", "5", "12", "18", "28"]}
+              />
             </div>
-          )}
+            {index > 0 && (
+              <div onClick={() => remove(index)} className="mt-7">
+                <Trash2 className="w-5 h-5 text-red-500 cursor-pointer" />
+              </div>
+            )}
+          </div>
+          <p className="text-xs font-semibold text-destructive py-4">
+            {errorMessage}
+          </p>
         </div>
       ))}
       <div className="flex justify-between">
@@ -269,7 +321,7 @@ const ItemsDetails = ({
           className="flex items-center gap-2">
           <Plus className="w-4 h-4" /> Add Item
         </Button>
-        <p className="font-semibold">
+        <p className="font-bold text-base">
           Total Price : {invoiceCurrency} {totalPrice}
         </p>
       </div>

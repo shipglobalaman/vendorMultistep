@@ -1,7 +1,7 @@
 import * as z from "zod";
 
 export const consignorSchema = z.object({
-  pickupAddress: z.string().min(1, "Please select a pickup address")
+  pickupAddress: z.string().min(1, "Please select a pickup address"),
 });
 export const formSchema = z.object({
   shippingFirstName: z.string().min(1, "First name is required"),
@@ -47,13 +47,13 @@ export const formSchema = z.object({
   billingState: z.string().min(1, "State is required"),
 });
 
-const itemSchema = z.object({
+export const itemSchema = z.object({
   productName: z.string().min(1, { message: "Product name is required" }),
   sku: z.string().optional(),
   hsn: z
     .string()
     .min(1, { message: "HSN is required" })
-    .regex(/^\d{4,8}$/, "HSN must be between 4 and 8 digits"),
+    .regex(/^\d{8}$/, "HSN must be of 8 digits"),
   qty: z
     .string()
     .min(1, { message: "Quantity is required" })
@@ -80,19 +80,31 @@ export const orderFormSchema = z.object({
   actualWeight: z
     .string()
     .min(1, { message: "Actual weight is required" })
-    .regex(/^\d+(\.\d+)?$/, "Actual weight must be a valid number"),
+    .regex(/^\d+(\.\d+)?$/, { message: "Weight must be a valid number" })
+    .refine((val) => parseFloat(val) <= 300, {
+      message: "Weight must be not more than 300",
+    }),
   length: z
     .string()
     .min(1, { message: "Length is required" })
-    .regex(/^\d+(\.\d+)?$/, "Length must be a valid number"),
+    .regex(/^\d+(\.\d+)?$/, { message: "Length must be a valid number" })
+    .refine((val) => parseFloat(val) <= 120, {
+      message: "Length must be not more than 120",
+    }),
   breadth: z
     .string()
     .min(1, { message: "Breadth is required" })
-    .regex(/^\d+(\.\d+)?$/, "Breadth must be a valid number"),
+    .regex(/^\d+(\.\d+)?$/, { message: "Breadth must be a valid number" })
+    .refine((val) => parseFloat(val) <= 120, {
+      message: "Breadth must be not more than 120",
+    }),
   height: z
     .string()
     .min(1, { message: "Height is required" })
-    .regex(/^\d+(\.\d+)?$/, "Height must be a valid number"),
+    .regex(/^\d+(\.\d+)?$/, { message: "Height must be a valid number" })
+    .refine((val) => parseFloat(val) <= 120, {
+      message: "Height must be not more than 120",
+    }),
   invoiceNo: z
     .string()
     .min(1, { message: "Invoice number is required" })

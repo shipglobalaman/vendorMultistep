@@ -55,21 +55,25 @@ const ConsignorDetails = () => {
             emptyMessage="No address found."
             required={true}
           />
-          <div className="sm:flex justify-end">
-            {pickupAddress && (
-              <div className="p-4">
-                <p className="text-sm font-semibold text-gray-400">
-                  Pickup Address
-                </p>
-                {pickupAddress}
-              </div>
-            )}
-            <Button
-              type="submit"
-              className="mt-10 bg-blue-900 hover:bg-blue-800"
-              size="lg">
-              Continue
-            </Button>
+          <div className="sm:flex justify-between items-center">
+            <div className="p-4 sm:w-5/6">
+              {pickupAddress && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-400">
+                    Pickup Address
+                  </p>
+                  {pickupAddress}
+                </div>
+              )}
+            </div>
+            <div className="flex items-end justify-end">
+              <Button
+                type="submit"
+                className="mt-10 bg-blue-900 hover:bg-blue-800"
+                size="lg">
+                Continue
+              </Button>
+            </div>
           </div>
         </div>
       </form>

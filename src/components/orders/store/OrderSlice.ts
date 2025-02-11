@@ -11,12 +11,21 @@ type FormData = z.infer<typeof formSchema> &
   z.infer<typeof orderFormSchema> & {
     step: number;
     shippingOption?: {
-      id: string;
-      name: string;
-      price: number;
-      transitTime: string;
+      provider_code: string;
+      display_name: string;
+      rate: number;
+      transit_time: string;
       hasDuties?: boolean;
       isRecommended?: boolean;
+      helper_text?: string;
+      image: string;
+      bill_weight_kg: number;
+      remote_charges: number;
+      handling_charges: number;
+      provider_status: boolean;
+      LOGISTIC_FEE: number;
+      REMOTE_FEE: number;
+      HANDLING_FEE: number;
     };
   };
 type OrderFormData = z.infer<typeof orderFormSchema>;

@@ -9,9 +9,16 @@ import type { RootState } from "@/components/orders/store/Store";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import boxPng from "/boxPng.png";
+import type { z } from "zod";
+import type {
+  formSchema,
+  orderFormSchema,
+  itemSchema,
+} from "@/zod validation/Schema";
 
 const ShowDetail = () => {
   const formData = useSelector((state: RootState) => state.order);
+
   return (
     <div>
       <div className="px-6 pb-4 bg-white justify-center items-center rounded-lg">
@@ -70,7 +77,7 @@ const ConsigneeDetails = ({
   shippingCountry,
   shippingState,
   shippingCity,
-}: any) => (
+}: z.infer<typeof formSchema>) => (
   <AccordionItem value="item-2">
     <AccordionTrigger className="font-bold text-base">
       Consignee Details <ChevronDown className="text-gray-300" />
@@ -111,7 +118,7 @@ const ItemDetails = ({
   actualWeight,
   items,
   invoiceCurrency,
-}: any) => {
+}: z.infer<typeof orderFormSchema>) => {
   const [showAll, setShowAll] = useState(false);
   const volumetricWeight = (
     (Number(length) * Number(breadth) * Number(height)) /
@@ -142,53 +149,62 @@ const ItemDetails = ({
               </p>
             </div>
           </div>
-          {visibleItems.map((item:any, index: number) => (
-            <div key={index} className="grid grid-cols-3 gap-1 pb-2">
-              <div className="space-y-1">
-                <p className="text-gray-400">Product</p>
-                <p className="font-semibold">{item.productName || "N/A"}</p>
+          {visibleItems.map(
+            (item: z.infer<typeof itemSchema>, index: number) => (
+              <div key={index} className="grid grid-cols-3 gap-1 pb-2">
+                <div className="space-y-1">
+                  <p className="text-gray-400">Product</p>
+                  <p className="font-semibold">{item.productName || "N/A"}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-gray-400">HSN</p>
+                  <p className="font-semibold">{item.hsn || "N/A"}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-gray-400">SKU</p>
+                  <p className="font-semibold">{item.sku || "N/A"}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-gray-400">QTY</p>
+                  <p className="font-semibold">{item.qty || "0"}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-gray-400">Unit Price</p>
+                  <p className="font-semibold">
+                    {invoiceCurrency} {item.unitPrice || "0"}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-gray-400">Total</p>
+                  <p className="font-semibold">
+                    {invoiceCurrency}{" "}
+                    {Number(item.qty) * Number(item.unitPrice) || "0"}
+                  </p>
+                </div>
               </div>
-              <div className="space-y-1">
-                <p className="text-gray-400">HSN</p>
-                <p className="font-semibold">{item.hsn || "N/A"}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-gray-400">SKU</p>
-                <p className="font-semibold">{item.sku || "N/A"}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-gray-400">QTY</p>
-                <p className="font-semibold">{item.qty || "0"}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-gray-400">Unit Price</p>
-                <p className="font-semibold">
-                  {invoiceCurrency} {item.unitPrice || "0"}
-                </p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-gray-400">Total</p>
-                <p className="font-semibold">
-                  {invoiceCurrency}{" "}
-                  {Number(item.qty) * Number(item.unitPrice) || "0"}
-                </p>
-              </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
         {items.length > 1 && (
-          <button
-            onClick={toggleShowAll}
-            className="mt-2 text-xs font-medium text-blue-800">
-            {showAll ? "Hide" : "View"}
-          </button>
+          <div className="flex justify-between items-center mt-4">
+            {!showAll && (
+              <p className="text-orange-400 text-xs font-semibold">
+                +{items.length} more products...
+              </p>
+            )}
+            <button
+              onClick={toggleShowAll}
+              className="mt-2 text-xs font-medium text-blue-800">
+              {showAll ? "Hide" : "View"}
+            </button>
+          </div>
         )}
       </div>
     </div>
   );
 };
 
-const Summary = ({ shippingOption }: { shippingOption: { price: number } }) => (
+const Summary = ({ shippingOption }: { shippingOption: { rate: number } }) => (
   <div className="rounded-lg p-3 px-0 pb-3 mt-3 border border-yellow-750 bg-orange-50">
     <div className="px-5 py-1.5 text-base font-semibold border-b border-orange-100 text-orange-500">
       Summary
@@ -200,13 +216,13 @@ const Summary = ({ shippingOption }: { shippingOption: { price: number } }) => (
           <p>GST</p>
         </div>
         <div className="grid text-right text-black gap-y-4">
-          <p>Rs.{shippingOption?.price}</p>
+          <p>Rs.{shippingOption?.rate}</p>
           <p>Rs.2765.16</p>
         </div>
       </div>
       <div className="flex justify-between px-5 py-3 mt-5 text-sm font-semibold bg-orange-100">
         <p>Total</p>
-        <p>Rs. {(shippingOption?.price ?? 0) + 2765.16}</p>
+        <p>Rs. {(shippingOption?.rate ?? 0) + 2765.16}</p>
       </div>
     </div>
   </div>
