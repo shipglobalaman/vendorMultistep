@@ -46,15 +46,17 @@ const ConsignorDetails = () => {
             <h2 className="text-xl font-semibold">Select Pickup Address</h2>
             <span className="text-red-500">*</span>
           </div>
-          <ComboBoxFormField
-            name="pickupAddress"
-            label="Pickup Address"
-            options={addresses}
-            placeholder="Select pickup address..."
-            searchPlaceholder="Search address..."
-            emptyMessage="No address found."
-            required={true}
-          />
+          <div className="w-4/5">
+            <ComboBoxFormField
+              name="pickupAddress"
+              label="Pickup Address"
+              options={addresses}
+              placeholder="Select pickup address..."
+              searchPlaceholder="Search address..."
+              emptyMessage="No address found."
+              required={true}
+            />
+          </div>
           <div className="sm:flex justify-between items-center">
             <div className="p-4 sm:w-5/6">
               {pickupAddress && (

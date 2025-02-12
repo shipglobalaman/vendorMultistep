@@ -44,7 +44,7 @@ export function SectionItem({ section, index, component }: SectionItemProps) {
           </span>
           <span>{section.label}</span>
         </div>
-        {activeStep > index && index !== activeStep - 1 && (
+        {activeStep > index && index !== 4 && (
           <div
             onClick={() => {
               dispatch(setActiveSection(section.value));
