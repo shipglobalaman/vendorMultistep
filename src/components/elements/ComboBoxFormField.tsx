@@ -26,7 +26,7 @@ import {
 
 interface ComboBoxProps {
   options: { value: string; label: string }[];
-  value: string;
+  value: string | { value: string; label: string };
   onChange: (value: string) => void;
   placeholder: string;
   searchPlaceholder: string;
@@ -56,8 +56,11 @@ function ComboBox({
           <span className="w-56 truncate">
             {loading
               ? "Loading..."
-              : options.find((option) => option.value === value)?.label ||
-                placeholder}
+              : options.find(
+                  (option) =>
+                    option.value ===
+                    (typeof value === "object" ? value.value : value)
+                )?.label || placeholder}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>

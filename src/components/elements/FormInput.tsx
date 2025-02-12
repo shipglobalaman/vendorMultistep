@@ -123,7 +123,11 @@ export const FormInput = <T extends FieldValues>({
                       </div>
                     </FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input
+                        type="number"
+                        {...field}
+                        placeholder={`Enter ${label} . . .`}
+                      />
                     </FormControl>
                   </>
                 );
@@ -138,7 +142,7 @@ export const FormInput = <T extends FieldValues>({
                       </div>
                     </FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input {...field} placeholder={`Enter ${label} . . .`} />
                     </FormControl>
                   </>
                 );

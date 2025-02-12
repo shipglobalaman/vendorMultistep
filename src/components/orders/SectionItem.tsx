@@ -32,7 +32,7 @@ export function SectionItem({ section, index, component }: SectionItemProps) {
       <AccordionTrigger
         className={clsx(
           "p-4 flex border justify-between",
-          isActive ? "bg-gray-100" : "bg-white"
+          isActive ? "bg-gray-100" : "bg-white text-gray-500"
         )}>
         <div className="flex gap-4">
           <span

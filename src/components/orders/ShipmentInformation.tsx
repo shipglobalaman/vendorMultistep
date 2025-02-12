@@ -36,6 +36,7 @@ export default function OrderDetail() {
     resolver: zodResolver(orderFormSchema),
     defaultValues: useSelector((state: RootState) => state.order),
   });
+
   const invoiceCurrency = form.watch("invoiceCurrency");
   useEffect(() => {
     form.reset(formData);
@@ -123,7 +124,7 @@ const OrderDetails = ({
         label="Invoice Currency"
         required
         type="select"
-        options={["INR", "USD", "EUR"]}
+        options={["INR", "USD", "EUR" ,"GPB","CAD","AUD","AED","SUR"]}
       />
       <FormInput
         control={form.control}
@@ -254,6 +255,7 @@ const ItemsDetails = ({
                     ? "lg:col-span-2"
                     : "col-span-1";
                 const required = itemField !== "sku";
+
                 return (
                   <FormInput
                     key={itemField}

@@ -46,14 +46,17 @@ const initialState: OrderState = {
   shippingMobile: "",
   shippingAlternateMobile: "",
   shippingEmail: "",
-  shippingCountry: "",
+  shippingCountry: {
+    value: "",
+    label: "",
+  },
   shippingAddress1: "",
   shippingLandmark: "",
   shippingAddress2: "",
   shippingPincode: "",
   shippingCity: "",
   shippingState: "",
-  sameAsBilling: false,
+  sameAsBilling: true,
   billingFirstName: "",
   billingLastName: "",
   billingMobile: "",
@@ -64,7 +67,10 @@ const initialState: OrderState = {
   billingAddress2: "",
   billingPincode: "",
   billingCity: "",
-  billingCountry: "",
+  billingCountry: {
+    value: "",
+    label: "",
+  },
   billingState: "",
   shipmentType: "CSB IV",
   actualWeight: "",
@@ -73,7 +79,7 @@ const initialState: OrderState = {
   height: "",
   invoiceNo: "",
   invoiceDate: "",
-  invoiceCurrency: "",
+  invoiceCurrency: "INR",
   orderId: "",
   iossNumber: "",
   items: [
@@ -104,6 +110,7 @@ const orderSlice = createSlice({
     setActiveStep: (state, action: PayloadAction<number>) => {
       state.activeStep = action.payload;
     },
+
     resetForm: () => initialState,
   },
 });

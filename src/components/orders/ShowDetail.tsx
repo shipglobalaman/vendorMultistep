@@ -10,7 +10,7 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import boxPng from "/boxPng.png";
 import type { z } from "zod";
-import type {
+import {
   formSchema,
   orderFormSchema,
   itemSchema,
@@ -25,7 +25,10 @@ const ShowDetail = () => {
         {formData.activeStep <= 1 && <QuickTips />}
         <Accordion type="multiple" defaultValue={["item-1", "item-2"]}>
           {formData.activeStep > 1 && (
-            <ConsignorDetails pickupAddress={formData.pickupAddress} />
+            <ConsignorDetails
+              pickupAddress={formData.pickupAddress}
+              activeStep={formData.activeStep}
+            />
           )}
           {formData.activeStep > 2 && <ConsigneeDetails {...formData} />}
         </Accordion>
@@ -40,8 +43,16 @@ const ShowDetail = () => {
 
 export default ShowDetail;
 
-const ConsignorDetails = ({ pickupAddress }: { pickupAddress: string }) => (
-  <AccordionItem value="item-1">
+const ConsignorDetails = ({
+  pickupAddress,
+  activeStep,
+}: {
+  pickupAddress: string;
+  activeStep: number;
+}) => (
+  <AccordionItem
+    value="item-1"
+    className={`${activeStep > 2 ? "" : "border-0"}`}>
     <AccordionTrigger className="font-bold text-base">
       Consignor Details <ChevronDown className="text-gray-300" />
     </AccordionTrigger>
@@ -77,8 +88,11 @@ const ConsigneeDetails = ({
   shippingCountry,
   shippingState,
   shippingCity,
+  activeStep,
 }: z.infer<typeof formSchema>) => (
-  <AccordionItem value="item-2">
+  <AccordionItem
+    value="item-2"
+    className={`${activeStep > 3 ? "" : "border-0"}`}>
     <AccordionTrigger className="font-bold text-base">
       Consignee Details <ChevronDown className="text-gray-300" />
     </AccordionTrigger>
@@ -96,7 +110,8 @@ const ConsigneeDetails = ({
           ) : (
             <p>
               {billingAddress1}, {billingAddress2}, {billingLandmark},{" "}
-              {billingPincode}, {billingCountry}, {billingState}, {billingCity}
+              {billingPincode}, {billingCountry.label}, {billingState},{" "}
+              {billingCity}
             </p>
           )}
         </p>
@@ -104,7 +119,8 @@ const ConsigneeDetails = ({
         <p className="text-gray-400">Shipping Address</p>
         <p>
           {shippingAddress1}, {shippingAddress2}, {shippingLandmark},{" "}
-          {shippingPincode}, {shippingCountry}, {shippingState}, {shippingCity}
+          {shippingPincode}, {shippingCountry.label}, {shippingState},{" "}
+          {shippingCity}
         </p>
       </div>
     </AccordionContent>
@@ -166,12 +182,12 @@ const ItemDetails = ({
                 </div>
                 <div className="space-y-1">
                   <p className="text-gray-400">QTY</p>
-                  <p className="font-semibold">{item.qty || "0"}</p>
+                  <p className="font-semibold">{Number(item.qty) || "0"}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-gray-400">Unit Price</p>
                   <p className="font-semibold">
-                    {invoiceCurrency} {item.unitPrice || "0"}
+                    {invoiceCurrency} {Number(item.unitPrice) || "0"}
                   </p>
                 </div>
                 <div className="space-y-1">

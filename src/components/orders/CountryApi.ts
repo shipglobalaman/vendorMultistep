@@ -51,7 +51,6 @@ export const useCountries = () => {
 
 export const useStates = (countryCode: string) => {
   const [states, setStates] = useState<State[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     if (!countryCode) return;
@@ -82,13 +81,11 @@ export const useStates = (countryCode: string) => {
         }
       } catch (error) {
         console.error("Error fetching states:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchStates();
   }, [countryCode]);
 
-  return { states, loading };
+  return { states };
 };

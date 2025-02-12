@@ -17,11 +17,14 @@ export const formSchema = z.object({
       message: "Alternate mobile number must be exactly 10 digits",
     }),
   shippingEmail: z.string().email("Invalid email address"),
-  shippingCountry: z.string().min(1, "Country is required"),
+  shippingCountry: z.object({
+    value: z.string().min(1, "Country code is required"),
+    label: z.string().min(1, "Country name is required"),
+  }),
   shippingAddress1: z.string().min(1, "Address 1 is required"),
   shippingLandmark: z.string().optional(),
   shippingAddress2: z.string().min(1, "Address 2 is required"),
-  shippingPincode: z.string().min(6, "Pincode must be at least 6 digits"),
+  shippingPincode: z.string().min(1, "Pincode is required"),
   shippingCity: z.string().min(1, "City is required"),
   shippingState: z.string().min(1, "State is required"),
   sameAsBilling: z.boolean().default(false),
@@ -38,11 +41,14 @@ export const formSchema = z.object({
       message: "Alternate mobile number must be exactly 10 digits",
     }),
   billingEmail: z.string().email("Invalid email address"),
-  billingCountry: z.string(),
+  billingCountry: z.object({
+    value: z.string().min(1, "Country code is required"),
+    label: z.string().min(1, "Country name is required"),
+  }),
   billingAddress1: z.string().min(1, "Address 1 is required"),
   billingLandmark: z.string().optional(),
   billingAddress2: z.string().min(1, "Address 2 is required"),
-  billingPincode: z.string().min(6, "Pincode must be at least 6 digits"),
+  billingPincode: z.string().min(1, "Pincode is required"),
   billingCity: z.string().min(1, "City is required"),
   billingState: z.string().min(1, "State is required"),
 });
@@ -57,14 +63,22 @@ export const itemSchema = z.object({
   qty: z
     .string()
     .min(1, { message: "Quantity is required" })
-    .regex(/^\d+(\.\d+)?$/, "Quantity must be a valid number"),
+    .regex(/^\d+(\.\d+)?$/, "Quantity must be a valid number")
+    .refine((val) => parseFloat(val) > 0, {
+      message: "Quantity must not be zero",
+    }),
+
   unitPrice: z
     .string()
     .min(1, { message: "Unit price is required" })
     .regex(
       /^\d+(\.\d{1,2})?$/,
       "Unit price must be a valid number with up to two decimal places"
-    ),
+    )
+    .refine((val) => parseFloat(val) > 0, {
+      message: "Unit price must not be zero",
+    }),
+
   igst: z
     .string()
     .min(1, { message: "IGST is required" })

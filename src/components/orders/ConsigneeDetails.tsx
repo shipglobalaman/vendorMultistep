@@ -21,11 +21,17 @@ export default function BuyerDetail() {
   const dispatch = useDispatch();
   const formData = useSelector((state: RootState) => state.order);
 
-  const [selectedShippingCountry, setSelectedShippingCountry] = useState("");
-  const [selectedBillingCountry, setSelectedBillingCountry] = useState("");
+  const [selectedShippingCountry, setSelectedShippingCountry] = useState({
+    value: "",
+    label: "",
+  });
+  const [selectedBillingCountry, setSelectedBillingCountry] = useState({
+    value: "",
+    label: "",
+  });
   const { countries, loading: countriesLoading } = useCountries();
-  const { states: shippingStates } = useStates(selectedShippingCountry);
-  const { states: billingStates } = useStates(selectedBillingCountry);
+  const { states: shippingStates } = useStates(selectedShippingCountry.value);
+  const { states: billingStates } = useStates(selectedBillingCountry.value);
   const [checked, setChecked] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -112,12 +118,6 @@ export default function BuyerDetail() {
               required={true}
             />
             <FormInput
-              key="shippingAlternateMobile"
-              control={form.control}
-              name="shippingAlternateMobile"
-              label="Alternate Mobile No."
-            />
-            <FormInput
               key="shippingEmail"
               control={form.control}
               name="shippingEmail"
@@ -158,7 +158,19 @@ export default function BuyerDetail() {
               searchPlaceholder="Search country..."
               emptyMessage="No country found."
               loading={countriesLoading}
-              onOptionSelected={setSelectedShippingCountry}
+              onOptionSelected={(selected) => {
+                const country = countries.find((c) => c.code === selected);
+                if (country) {
+                  setSelectedShippingCountry({
+                    value: country.code,
+                    label: country.name,
+                  });
+                  form.setValue("shippingCountry", {
+                    value: country.code,
+                    label: country.name,
+                  });
+                }
+              }}
               required={true}
             />
             <ComboBoxFormField
@@ -233,7 +245,19 @@ export default function BuyerDetail() {
               searchPlaceholder="Search country..."
               emptyMessage="No country found."
               loading={countriesLoading}
-              onOptionSelected={setSelectedBillingCountry}
+              onOptionSelected={(selected) => {
+                const country = countries.find((c) => c.code === selected);
+                if (country) {
+                  setSelectedBillingCountry({
+                    value: country.code,
+                    label: country.name,
+                  });
+                  form.setValue("shippingCountry", {
+                    value: country.code,
+                    label: country.name,
+                  });
+                }
+              }}
               required={true}
             />
             <ComboBoxFormField
