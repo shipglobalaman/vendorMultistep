@@ -97,6 +97,9 @@ export const orderFormSchema = z.object({
     .regex(/^\d+(\.\d+)?$/, { message: "Weight must be a valid number" })
     .refine((val) => parseFloat(val) <= 300, {
       message: "Weight must be not more than 300",
+    })
+    .refine((val) => parseFloat(val) > 0, {
+      message: "Weight must not be zero",
     }),
   length: z
     .string()
@@ -104,6 +107,9 @@ export const orderFormSchema = z.object({
     .regex(/^\d+(\.\d+)?$/, { message: "Length must be a valid number" })
     .refine((val) => parseFloat(val) <= 120, {
       message: "Length must be not more than 120",
+    })
+    .refine((val) => parseFloat(val) > 0, {
+      message: "Length must not be zero",
     }),
   breadth: z
     .string()
@@ -111,6 +117,9 @@ export const orderFormSchema = z.object({
     .regex(/^\d+(\.\d+)?$/, { message: "Breadth must be a valid number" })
     .refine((val) => parseFloat(val) <= 120, {
       message: "Breadth must be not more than 120",
+    })
+    .refine((val) => parseFloat(val) > 0, {
+      message: "Breadth must not be zero",
     }),
   height: z
     .string()
@@ -118,6 +127,9 @@ export const orderFormSchema = z.object({
     .regex(/^\d+(\.\d+)?$/, { message: "Height must be a valid number" })
     .refine((val) => parseFloat(val) <= 120, {
       message: "Height must be not more than 120",
+    })
+    .refine((val) => parseFloat(val) > 0, {
+      message: "Height must not be zero",
     }),
   invoiceNo: z
     .string()
@@ -137,10 +149,7 @@ export const orderFormSchema = z.object({
       /^[A-Za-z]{3}$/,
       "Invoice currency must be a 3-letter currency code"
     ),
-  orderId: z
-    .string()
-    .min(1, { message: "orderId is required" })
-    .regex(/^[A-Za-z0-9]+$/, "Order ID must be alphanumeric"),
+  orderId: z.string(),
   iossNumber: z.string().optional(),
   items: z
     .array(itemSchema)

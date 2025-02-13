@@ -124,13 +124,12 @@ const OrderDetails = ({
         label="Invoice Currency"
         required
         type="select"
-        options={["INR", "USD", "EUR" ,"GPB","CAD","AUD","AED","SUR"]}
+        options={["INR", "USD", "EUR", "GPB", "CAD", "AUD", "AED", "SUR"]}
       />
       <FormInput
         control={form.control}
         name="orderId"
         label="Order Id/Ref. Id"
-        required
       />
       <FormInput control={form.control} name="iossNumber" label="IOSS Number" />
     </div>
@@ -172,6 +171,7 @@ const BoxMeasurements = ({
                       placeholder="0.00"
                       className="rounded-r-none"
                       value={typeof field.value === "string" ? field.value : ""}
+                      type="number"
                     />
                     <span className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-input bg-muted text-muted-foreground text-sm">
                       {unit}

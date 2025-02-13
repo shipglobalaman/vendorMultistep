@@ -139,7 +139,7 @@ export default function ShippingPartner() {
                   ? "bg-orange-100 text-orange-400 border-orange-400"
                   : "bg-gray-50 text-gray-500"
               )}>
-              <div className="font-bold">{item.value}kg</div>
+              <div className="font-bold">{item.value} KG</div>
               <div className="text-xs">{item.label}</div>
             </div>
           ))}
@@ -168,25 +168,28 @@ export default function ShippingPartner() {
               </TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody className="relative">
-            <Form {...form}>
-              {shippingOptions.map((option) => (
-                <>
+
+          <Form {...form}>
+            {shippingOptions.map((option, index) => (
+              <TableBody className="relative" key={index}>
+                <TableRow>
                   <TableCell className="bg-blue-50 absolute w-full z-10 text-start text-xs px-4 py-1 text-red-500 rounded-tr-md rounded-tl-md border-t border-x">
                     <p>Duties will be charged, if applicable.</p>
                   </TableCell>
+                </TableRow>
+
                   <ShippingOptionCard
-                    key={option.provider_code}
+                    key={index}
                     option={option}
                     isSelected={
                       form.watch("shippingOption") === option.provider_code
                     }
                     onSelect={handleSelect}
                   />
-                </>
-              ))}
-            </Form>
-          </TableBody>
+
+              </TableBody>
+            ))}
+          </Form>
         </Table>
       )}
 

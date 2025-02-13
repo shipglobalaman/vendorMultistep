@@ -20,7 +20,7 @@ import {
 export default function BuyerDetail() {
   const dispatch = useDispatch();
   const formData = useSelector((state: RootState) => state.order);
-
+  const { sameAsBilling } = formData;
   const [selectedShippingCountry, setSelectedShippingCountry] = useState({
     value: "",
     label: "",
@@ -32,7 +32,7 @@ export default function BuyerDetail() {
   const { countries, loading: countriesLoading } = useCountries();
   const { states: shippingStates } = useStates(selectedShippingCountry.value);
   const { states: billingStates } = useStates(selectedBillingCountry.value);
-  const [checked, setChecked] = useState(true);
+  const [checked, setChecked] = useState(sameAsBilling);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -87,7 +87,12 @@ export default function BuyerDetail() {
       form.setValue("billingCity", form.getValues("shippingCity"));
       form.setValue("billingCountry", form.getValues("shippingCountry"));
       form.setValue("billingState", form.getValues("shippingState"));
-    }
+
+      setSelectedBillingCountry({
+        value: form.getValues("shippingCountry")?.value || "",
+        label: form.getValues("shippingCountry")?.label || "",
+      });
+    } 
   }, [checked, form, shippingAddress]);
 
   return (
@@ -114,7 +119,7 @@ export default function BuyerDetail() {
               key="shippingMobile"
               control={form.control}
               name="shippingMobile"
-              label="Mobile No."
+              label="Mobile Number"
               required={true}
             />
             <FormInput
@@ -169,6 +174,7 @@ export default function BuyerDetail() {
                     value: country.code,
                     label: country.name,
                   });
+                  form.setValue("shippingState", "");
                 }
               }}
               required={true}
@@ -252,10 +258,11 @@ export default function BuyerDetail() {
                     value: country.code,
                     label: country.name,
                   });
-                  form.setValue("shippingCountry", {
+                  form.setValue("billingCountry", {
                     value: country.code,
                     label: country.name,
                   });
+                  form.setValue("billingState", "");
                 }
               }}
               required={true}

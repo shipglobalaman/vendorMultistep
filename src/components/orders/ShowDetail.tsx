@@ -104,9 +104,9 @@ const ConsigneeDetails = ({
         </p>
 
         <p className="text-gray-400">Billing Address</p>
-        <p>
+        <div>
           {sameAsBilling ? (
-            <p>Same as shipping Address</p>
+            <p>Same as shipping address</p>
           ) : (
             <p>
               {billingAddress1}, {billingAddress2}, {billingLandmark},{" "}
@@ -114,7 +114,7 @@ const ConsigneeDetails = ({
               {billingCity}
             </p>
           )}
-        </p>
+        </div>
 
         <p className="text-gray-400">Shipping Address</p>
         <p>
@@ -205,7 +205,7 @@ const ItemDetails = ({
           <div className="flex justify-between items-center mt-4">
             {!showAll && (
               <p className="text-orange-400 text-xs font-semibold">
-                +{items.length} more products...
+                +{items.length-1} more products...
               </p>
             )}
             <button
