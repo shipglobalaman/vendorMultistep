@@ -99,7 +99,7 @@ export const orderFormSchema = z.object({
       message: "Weight must be not more than 300",
     })
     .refine((val) => parseFloat(val) > 0, {
-      message: "Weight must not be zero",
+      message: "Weight must be atleast 0.01 KG",
     }),
   length: z
     .string()
@@ -108,8 +108,8 @@ export const orderFormSchema = z.object({
     .refine((val) => parseFloat(val) <= 120, {
       message: "Length must be not more than 120",
     })
-    .refine((val) => parseFloat(val) > 0, {
-      message: "Length must not be zero",
+    .refine((val) => parseFloat(val) >= 1, {
+      message: "Length must be atleast 1 cm",
     }),
   breadth: z
     .string()
@@ -118,8 +118,8 @@ export const orderFormSchema = z.object({
     .refine((val) => parseFloat(val) <= 120, {
       message: "Breadth must be not more than 120",
     })
-    .refine((val) => parseFloat(val) > 0, {
-      message: "Breadth must not be zero",
+    .refine((val) => parseFloat(val) >= 1, {
+      message: "Breadth must be atleast 1 cm",
     }),
   height: z
     .string()
@@ -128,20 +128,14 @@ export const orderFormSchema = z.object({
     .refine((val) => parseFloat(val) <= 120, {
       message: "Height must be not more than 120",
     })
-    .refine((val) => parseFloat(val) > 0, {
-      message: "Height must not be zero",
+    .refine((val) => parseFloat(val) >= 1, {
+      message: "Height must be atleast 1 cm",
     }),
   invoiceNo: z
     .string()
     .min(1, { message: "Invoice number is required" })
     .regex(/^[A-Za-z0-9]+$/, "Invoice number must be alphanumeric"),
-  invoiceDate: z
-    .string()
-    .min(1, { message: "Invoice date is required" })
-    .regex(
-      /^\d{4}-\d{2}-\d{2}$/,
-      "Invoice date must be in the format YYYY-MM-DD"
-    ),
+  invoiceDate: z.date({ required_error: "Invoice date is required" }),
   invoiceCurrency: z
     .string()
     .min(1, { message: "Invoice currency is required" })

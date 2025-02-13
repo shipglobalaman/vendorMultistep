@@ -118,7 +118,7 @@ export default function ShippingPartner() {
   return (
     <div className="max-w-3xl mx-auto ">
       <p>
-        All shipments via ShipGlobal services are{" "}
+        All shipments via ShipGlobal services are
         <b>Delivered Duty Paid (DDP)</b> , hence <b>no extra duty</b> will be
         billed on the consignee or the shipper. Rates are inclusive of covid &
         fuel surcharge, exclusive of GST and ex-Delhi Hub.
@@ -178,15 +178,14 @@ export default function ShippingPartner() {
                   </TableCell>
                 </TableRow>
 
-                  <ShippingOptionCard
-                    key={index}
-                    option={option}
-                    isSelected={
-                      form.watch("shippingOption") === option.provider_code
-                    }
-                    onSelect={handleSelect}
-                  />
-
+                <ShippingOptionCard
+                  key={index}
+                  option={option}
+                  isSelected={
+                    form.watch("shippingOption") === option.provider_code
+                  }
+                  onSelect={handleSelect}
+                />
               </TableBody>
             ))}
           </Form>

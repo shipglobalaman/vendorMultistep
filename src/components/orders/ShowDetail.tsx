@@ -109,8 +109,8 @@ const ConsigneeDetails = ({
             <p>Same as shipping address</p>
           ) : (
             <p>
-              {billingAddress1}, {billingAddress2}, {billingLandmark},{" "}
-              {billingPincode}, {billingCountry.label}, {billingState},{" "}
+              {billingAddress1}, {billingAddress2}, {billingLandmark},
+              {billingPincode}, {billingCountry.label}, {billingState},
               {billingCity}
             </p>
           )}
@@ -118,8 +118,8 @@ const ConsigneeDetails = ({
 
         <p className="text-gray-400">Shipping Address</p>
         <p>
-          {shippingAddress1}, {shippingAddress2}, {shippingLandmark},{" "}
-          {shippingPincode}, {shippingCountry.label}, {shippingState},{" "}
+          {shippingAddress1}, {shippingAddress2}, {shippingLandmark},
+          {shippingPincode}, {shippingCountry.label}, {shippingState},
           {shippingCity}
         </p>
       </div>
@@ -193,7 +193,7 @@ const ItemDetails = ({
                 <div className="space-y-1">
                   <p className="text-gray-400">Total</p>
                   <p className="font-semibold">
-                    {invoiceCurrency}{" "}
+                    {invoiceCurrency}
                     {Number(item.qty) * Number(item.unitPrice) || "0"}
                   </p>
                 </div>
@@ -257,9 +257,9 @@ const QuickTips = () => {
         </p>
         <p className="mt-3">
           Fixed COD charge or COD % of the order value whichever is higher will
-          be taken while calculating the COD fee.{" "}
+          be taken while calculating the COD fee.
         </p>
-        <p className="mt-3">Above prices are exclusive of GST.</p>{" "}
+        <p className="mt-3">Above prices are exclusive of GST.</p>
         <p className="mt-3">
           The above pricing is subject to change based on fuel surcharges and
           courier company base rates.

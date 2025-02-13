@@ -285,6 +285,7 @@ const ItemsDetails = ({
                 type="select"
                 required
                 options={["0", "5", "12", "18", "28"]}
+                sufix="%"
               />
             </div>
             {index > 0 && (
