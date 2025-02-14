@@ -300,13 +300,12 @@ const ItemsDetails = ({
         </div>
       ))}
       <div className="flex justify-between">
-        <Button
-          type="button"
-          variant="secondary"
+        <span
           onClick={() => append({ ...itemTemplate })}
-          className="flex items-center gap-2">
-          <Plus className="w-4 h-4" /> Add Item
-        </Button>
+          className="flex items-center cursor-pointer underline text-blue-900 text-base">
+          <Plus className="w-4 h-4" />
+          Add Another Product
+        </span>
         <p className="font-bold text-base">
           Total Price : {invoiceCurrency} {totalPrice}
         </p>
