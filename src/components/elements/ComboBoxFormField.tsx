@@ -26,7 +26,7 @@ import {
 
 interface ComboBoxProps {
   options: { value: string; label: string }[];
-  value: string;
+  value: string | { value: string; label: string };
   onChange: (value: string) => void;
   placeholder: string;
   searchPlaceholder: string;
@@ -44,7 +44,11 @@ function ComboBox({
   loading = false,
 }: ComboBoxProps) {
   const [open, setOpen] = React.useState(false);
-
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const d = searchQuery.toLowerCase();
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(d)
+  );
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -56,15 +60,22 @@ function ComboBox({
           <span className="w-56 truncate">
             {loading
               ? "Loading..."
-              : options.find((option) => option.value === value)?.label ||
-                placeholder}
+              : options.find(
+                  (option) =>
+                    option.value ===
+                    (typeof value === "object" ? value.value : value)
+                )?.label || <p className="font-semibold text-gray-400">{placeholder}</p>}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-[var(--radix-popover-trigger-width)]">
         <Command>
-          <CommandInput placeholder={searchPlaceholder} />
+          <CommandInput
+            placeholder={searchPlaceholder}
+            value={searchQuery}
+            onValueChange={(value) => setSearchQuery(value)}
+          />
           <CommandList>
             {loading ? (
               <CommandEmpty>Loading...</CommandEmpty>
@@ -72,10 +83,10 @@ function ComboBox({
               <>
                 <CommandEmpty>{emptyMessage}</CommandEmpty>
                 <CommandGroup>
-                  {options.map((option) => (
+                  {filteredOptions.map((option) => (
                     <CommandItem
                       key={option.value}
-                      value={option.value}
+                      value={option.label}
                       onSelect={() => {
                         onChange(option.value);
                         setOpen(false);

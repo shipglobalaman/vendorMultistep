@@ -47,6 +47,11 @@ const data = {
       url: "add-order",
       icon: Frame,
     },
+    {
+      name: "KYC",
+      url: "kyc",
+      icon: Frame,
+    },
   ],
 };
 

@@ -46,30 +46,36 @@ const ConsignorDetails = () => {
             <h2 className="text-xl font-semibold">Select Pickup Address</h2>
             <span className="text-red-500">*</span>
           </div>
-          <ComboBoxFormField
-            name="pickupAddress"
-            label="Pickup Address"
-            options={addresses}
-            placeholder="Select pickup address..."
-            searchPlaceholder="Search address..."
-            emptyMessage="No address found."
-            required={true}
-          />
-          <div className="sm:flex justify-end">
-            {pickupAddress && (
-              <div className="p-4">
-                <p className="text-sm font-semibold text-gray-400">
-                  Pickup Address
-                </p>
-                {pickupAddress}
-              </div>
-            )}
-            <Button
-              type="submit"
-              className="mt-10 bg-blue-900 hover:bg-blue-800"
-              size="lg">
-              Continue
-            </Button>
+          <div className="w-4/5">
+            <ComboBoxFormField
+              name="pickupAddress"
+              label="Pickup Address"
+              options={addresses}
+              placeholder="Select pickup address..."
+              searchPlaceholder="Search address..."
+              emptyMessage="No address found."
+              required={true}
+            />
+          </div>
+          <div className="sm:flex justify-between items-center">
+            <div className="p-4 sm:w-5/6">
+              {pickupAddress && (
+                <div>
+                  <p className="text-sm font-semibold text-gray-400">
+                    Pickup Address
+                  </p>
+                  {pickupAddress}
+                </div>
+              )}
+            </div>
+            <div className="flex items-end justify-end">
+              <Button
+                type="submit"
+                className="mt-10 bg-blue-900 hover:bg-blue-800"
+                size="lg">
+                Continue
+              </Button>
+            </div>
           </div>
         </div>
       </form>

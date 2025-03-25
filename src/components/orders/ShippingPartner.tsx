@@ -1,7 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/components/orders/store/Store";
 import {
@@ -9,61 +17,45 @@ import {
   setActiveStep,
 } from "@/components/orders/store/OrderSlice";
 import { CircleCheck } from "lucide-react";
+import clsx from "clsx";
+import { fetchAPI } from "./Api";
 
 interface ShippingOption {
-  id: string;
-  name: string;
-  price: number;
-  transitTime: string;
+  provider_code: string;
+  display_name: string;
+  helper_text?: string;
+  image: string;
+  transit_time: string;
+  rate: number;
+  bill_weight_kg: number;
+  remote_charges: number;
+  handling_charges: number;
+  provider_status: boolean;
+  LOGISTIC_FEE: number;
+  REMOTE_FEE: number;
+  HANDLING_FEE: number;
   hasDuties?: boolean;
   isRecommended?: boolean;
 }
 
-const shippingOptions: ShippingOption[] = [
-  {
-    id: "shipglobal",
-    name: "ShipGlobal Direct",
-    price: 7722,
-    transitTime: "7 - 10 Days",
-    isRecommended: true,
-  },
-  {
-    id: "ups-promotional",
-    name: "UPS Promotional",
-    price: 15362,
-    transitTime: "4 - 7 Days",
-    hasDuties: true,
-  },
-  {
-    id: "dhl",
-    name: "DHL Express",
-    price: 15966,
-    transitTime: "4 - 7 Days",
-    hasDuties: true,
-  },
-  {
-    id: "ups",
-    name: "UPS",
-    price: 19176,
-    transitTime: "4 - 7 Days",
-    hasDuties: true,
-  },
-];
-
 export default function ShippingPartner() {
   const dispatch = useDispatch();
   const formData = useSelector((state: RootState) => state.order);
-  const { actualWeight, length, breadth, height } = formData;
+  const {
+    actualWeight,
+    length,
+    breadth,
+    height,
+    shippingCountry,
+    shippingPincode,
+  } = formData;
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
 
   const volumetricWeight = (
     (Number(length) * Number(breadth) * Number(height)) /
     5000
   ).toFixed(2);
-
-  const billedWeight =
-    Number(actualWeight) > Number(volumetricWeight)
-      ? actualWeight
-      : volumetricWeight;
+  const billedWeight = Math.max(Number(actualWeight), Number(volumetricWeight));
 
   const weightData = [
     { value: actualWeight, label: "Dead Weight" },
@@ -71,93 +63,142 @@ export default function ShippingPartner() {
     { value: billedWeight, label: "Billed Weight" },
   ];
 
+  useEffect(() => {
+    async function fetchShippingOptions() {
+      try {
+        const data = await fetchAPI("get-shipper-rates", "POST", {
+          customer_shipping_postcode: shippingPincode,
+          customer_shipping_country_code: shippingCountry.value,
+          package_weight: billedWeight,
+          package_length: length,
+          package_breadth: breadth,
+          package_height: height,
+        });
+
+        setShippingOptions(data.data.rate || []);
+      } catch (error) {
+        console.error("Error fetching shipping options:", error);
+      }
+    }
+
+    if (shippingPincode && shippingCountry && billedWeight) {
+      fetchShippingOptions();
+    }
+  }, [shippingPincode, shippingCountry, billedWeight, length, breadth, height]);
+
   const form = useForm({
     defaultValues: {
       shippingOption: useSelector(
-        (state: RootState) =>
-          state.order.shippingOption?.id || shippingOptions[0].id
+        (state: RootState) => state.order.shippingOption?.provider_code || ""
       ),
     },
   });
 
   useEffect(() => {
     if (formData.shippingOption) {
-      form.setValue("shippingOption", formData.shippingOption.id);
+      form.setValue("shippingOption", formData.shippingOption.provider_code);
+    }
+  }, [form, formData]);
+  useEffect(() => {
+    if (formData.shippingOption) {
+      form.setValue("shippingOption", formData.shippingOption.provider_code);
     }
   }, [form, formData]);
 
-  const handleSelect = (id: string) => {
-    form.setValue("shippingOption", id);
-    const selectedShippingOption = shippingOptions.find(
-      (option) => option.id === id
+  const handleSelect = (provider_code: string) => {
+    form.setValue("shippingOption", provider_code);
+    const selectedOption = shippingOptions.find(
+      (option) => option.provider_code === provider_code
     );
-    if (selectedShippingOption) {
-      dispatch(setFormData({ shippingOption: selectedShippingOption }));
-    }
+    if (selectedOption)
+      dispatch(setFormData({ shippingOption: selectedOption }));
     dispatch(setActiveStep(5));
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Select Shipping Partner</h1>
-      <p className="text-gray-500 mb-4 text-sm">
-        All shipments via ShipGlobal Direct service are Delivered Duty Paid
-        (DDP), hence no extra duty will be billed on the consignee or the
-        shipper. Rates are inclusive of covid & fuel surcharge, exclusive of GST
-        and ex-Delhi Hub.
+    <div className="max-w-3xl mx-auto ">
+      <p>
+        All shipments via ShipGlobal services are
+        <b>Delivered Duty Paid (DDP)</b> , hence <b>no extra duty</b> will be
+        billed on the consignee or the shipper. Rates are inclusive of covid &
+        fuel surcharge, exclusive of GST and ex-Delhi Hub.
       </p>
-      <p className="text-gray-500 mb-8 text-sm">
-        If you need more info, please call/whatsapp at
-        <a href="tel:011-422-77-777" className="text-blue-500">
-          011-422 77 777
-        </a>
-        .
+      <br />
+      <p>
+        In case any doubt, please call/whatsapp at
+        <span className="text-blue-800 font-semibold">011-422 77777</span>
       </p>
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           {weightData.map((item, index) => (
             <div
               key={index}
-              className={`${
+              className={clsx(
+                "p-2 text-center border w-30 rounded-lg",
                 item.label === "Billed Weight"
                   ? "bg-orange-100 text-orange-400 border-orange-400"
                   : "bg-gray-50 text-gray-500"
-              } p-2 text-center border w-30 rounded-lg`}>
-              <div className="font-bold">{item.value}kg</div>
+              )}>
+              <div className="font-bold">{item.value} KG</div>
               <div className="text-xs">{item.label}</div>
             </div>
           ))}
         </div>
       </div>
-      <table className="mt-3 w-full">
-        <thead>
-          <tr className="grid grid-cols-1 sm:grid-cols-4 font-normal py-2 border rounded-md mb-4 text-slate-500 bg-slate-50 text-center">
-            <th className="font-normal align-middle">Courier Partner</th>
-            <th className="font-normal align-middle">Delivery Time</th>
-            <th className="font-normal">Shipment Rate</th>
-            <th className="font-normal">Select</th>
-          </tr>
-        </thead>
-        <tbody>
+
+      {shippingOptions.length === 0 ? (
+        <p className="text-center text-lg font-semibold">
+          No Shipper Available
+        </p>
+      ) : (
+        <Table className="mt-3 w-full border-separate border-spacing-y-4">
+          <TableHeader>
+            <TableRow className="border">
+              <TableHead className="bg-gray-100 p-3 border border-r-0 border-gray-200 first:rounded-l-lg text-left font-normal">
+                Courier Partner
+              </TableHead>
+              <TableHead className="bg-gray-100 p-3 border border-x-0 border-gray-200 text-left font-normal">
+                Delivery Time
+              </TableHead>
+              <TableHead className="bg-gray-100 p-3 border border-x-0 border-gray-200 text-left font-normal">
+                Shipment Rate
+              </TableHead>
+              <TableHead className="bg-gray-100 p-3 border border-l-0 border-gray-200 first:rounded-l-lg last:rounded-r-lg text-left font-normal">
+                Select
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+
           <Form {...form}>
-            <div className="space-y-2">
-              {shippingOptions.map((option) => (
+            {shippingOptions.map((option, index) => (
+              <TableBody className="relative" key={index}>
+                <TableRow>
+                  <TableCell className="bg-blue-50 absolute w-full z-10 text-start text-xs px-4 py-1 text-red-500 rounded-tr-md rounded-tl-md border-t border-x">
+                    <p>Duties will be charged, if applicable.</p>
+                  </TableCell>
+                </TableRow>
+
                 <ShippingOptionCard
-                  key={option.id}
+                  key={index}
                   option={option}
-                  isSelected={form.watch("shippingOption") === option.id}
+                  isSelected={
+                    form.watch("shippingOption") === option.provider_code
+                  }
                   onSelect={handleSelect}
                 />
-              ))}
-            </div>
-            <div className="flex justify-end">
-              <Button className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 mt-6">
-                Pay & Add Order
-              </Button>
-            </div>
+              </TableBody>
+            ))}
           </Form>
-        </tbody>
-      </table>
+        </Table>
+      )}
+
+      <div className="flex justify-end">
+        <Button
+          disabled={!formData.shippingOption}
+          className="bg-blue-900 hover:bg-blue-800 text-white px-8 mt-6">
+          Pay & Add Order
+        </Button>
+      </div>
     </div>
   );
 }
@@ -172,31 +213,31 @@ function ShippingOptionCard({
   onSelect: (id: string) => void;
 }) {
   return (
-    <tr
-      key={option.id}
-      onClick={() => onSelect(option.id)}
-      className={`grid grid-cols-1 sm:grid-cols-4 py-4 ${
-        option.name !== "ShipGlobal Direct" ? "pt-8" : ""
-      }  border rounded-md mb-2 cursor-pointer text-center relative overflow-hidden 
-        border-gray-300
-      `}>
-      {option.name !== "ShipGlobal Direct" && (
-        <div className="bg-blue-50 absolute w-full text-start text-xs px-4 py-1 text-red-500">
-          Duties will be charged, if applicable.
-        </div>
-      )}
-      <td className="font-semibold text-sm">{option.name}</td>
-      <td className="text-gray-500">{option.transitTime}</td>
-      <td className="text-gray-500">Rs. {option.price}</td>
-      <td>
+    <TableRow
+      key={option.provider_code}
+      onClick={() => onSelect(option.provider_code)}
+      className={clsx(
+        "border rounded-md cursor-pointer relative overflow-hidden"
+      )}>
+      <TableCell className="bg-white p-5 border border-r-0 border-gray-200 rounded-l-lg font-semibold overflow-hidden">
+        {option.display_name}
+      </TableCell>
+      <TableCell className="bg-white p-5 border border-x-0 border-gray-200">
+        {option.transit_time}
+      </TableCell>
+      <TableCell className="bg-white p-5 border border-x-0 border-gray-200">
+        Rs. {option.rate}
+      </TableCell>
+      <TableCell className="bg-white p-5 border border-l-0 border-gray-200 rounded-r-lg">
         <CircleCheck
-          className={`w-5 h-5 mx-auto ${
+          className={clsx(
+            "w-5 h-5 mx-auto",
             isSelected
               ? "fill-green-500 text-white"
-              : "text-white fill-gray-300"
-          }`}
+              : "fill-gray-300 text-white"
+          )}
         />
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
