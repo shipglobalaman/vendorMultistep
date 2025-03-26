@@ -45,6 +45,11 @@ export function DocumentPreviewDialog({
       setIsRejecting(false);
     }
   };
+  const previewDocumentDetails = [
+    { label: "Document Name", value: document?.fileName ?? "AADHAR_FRONT" },
+    { label: "Document No", value: document?.documentNo ?? "544785115278" },
+    { label: "Document Status", value: document?.documentStatus ?? "Pending" },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -57,26 +62,14 @@ export function DocumentPreviewDialog({
         <div className="p-6">
           <div className="space-y-4">
             <div className="flex flex-col gap-2">
-              <div className="flex items-baseline">
-                <h3 className="font-semibold text-sm">Document Name :</h3>
-                <span className="ml-1 text-gray-500 text-sm">
-                  {document.fileName || "AADHAR_FRONT"}
-                </span>
-              </div>
-
-              <div className="flex items-baseline">
-                <h3 className="font-semibold text-sm">Document No :</h3>
-                <span className="ml-1 text-gray-500 text-sm">
-                  {document.documentNo || "544785115278"}
-                </span>
-              </div>
-
-              <div className="flex items-baseline">
-                <h3 className="font-semibold text-sm">Document Status :</h3>
-                <span className="ml-1 text-gray-500 text-sm">
-                  {document.documentStatus || "Pending"}
-                </span>
-              </div>
+              {previewDocumentDetails.map((item, index) => (
+                <div key={index} className="flex items-baseline">
+                  <h3 className="font-semibold text-sm">{item.label} :</h3>
+                  <span className="ml-1 text-gray-500 text-sm">
+                    {item.value}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -90,22 +83,17 @@ export function DocumentPreviewDialog({
             />
           </div>
         </div>
-
         <div className="p-6 flex justify-center gap-4">
           <Select disabled={isRejecting} onValueChange={() => handleReject()}>
             <SelectTrigger className="w-28 border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600">
-              <SelectValue
-                placeholder={
-                  isRejecting ? (
-                    <div className="flex items-center">
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Rejecting...
-                    </div>
-                  ) : (
-                    "Reject"
-                  )
-                }
-              />
+              {isRejecting ? (
+                <div className="flex items-center">
+                  Rejecting...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                </div>
+              ) : (
+                <SelectValue placeholder="Reject" />
+              )}
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="aadhar_mismatch">

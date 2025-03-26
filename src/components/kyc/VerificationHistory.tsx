@@ -62,7 +62,7 @@ export default function DocumentManagement() {
                     {document.documentName}
                     <Badge
                       variant="outline"
-                      className="bg-green-50 text-green-500 font-normal border-green-500">
+                      className="bg-green-50 text-green-500 font-normal border-green-500 ml-1">
                       3P Verified
                     </Badge>
                   </TableCell>
