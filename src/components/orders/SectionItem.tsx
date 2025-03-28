@@ -8,11 +8,8 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "@/components/ui/accordion";
-import type { RootState } from "@/components/orders/store/Store";
-import {
-  setActiveSection,
-  setActiveStep,
-} from "@/components/orders/store/OrderSlice";
+import type { RootState } from "@/components/store/Store";
+import { setActiveSection, setActiveStep } from "@/components/store/OrderSlice";
 
 type SectionItemProps = {
   section: Section;

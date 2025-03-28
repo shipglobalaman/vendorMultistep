@@ -9,86 +9,227 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import DashboardPage from "@/layouts/DashboardPage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DocumentPreviewDialog } from "./PreviewDialog";
 import { Badge } from "@/components/ui/badge";
-import { initialdocuments } from "@/lib/const";
+import { Button } from "../ui/button";
+import { SuccessDialog } from "./SuccessDialog";
+import { Check } from "lucide-react";
+import { useAppDispatch, useAppSelector } from "@/components/store/Hooks";
+import {
+  toggleDocumentSelection,
+  updateDocumentStatus,
+  setSubmitted,
+} from "@/components/store/DocumentSlice";
+import { updateKycStatus } from "../store/KycSlice";
+import type React from "react";
+import clsx from "clsx";
 
-export default function DocumentManagement() {
-  const [documents, setDocuments] = useState(initialdocuments);
+interface Document {
+  id: number;
+  documentName: string;
+  fileName: string;
+  lastUpdated: string;
+  documentStatus: string;
+  selected: boolean;
+}
+interface DocumentRowProps {
+  document: Document;
+  onToggleSelection: (id: number) => void;
+  onStatusChange: (id: number, status: string) => void;
+}
+interface DocumentTableProps {
+  documents: Document[];
+  onToggleSelection: (id: number) => void;
+  onStatusChange: (id: number, status: string) => void;
+}
 
-  const toggleDocumentSelection = (id: number) => {
-    setDocuments(
-      documents.map((doc) =>
-        doc.id === id ? { ...doc, selected: !doc.selected } : doc
-      )
-    );
+const DocumentHeader: React.FC = () => {
+  return (
+    <div className="flex items-center mb-8 gap-3">
+      <h1 className="font-bold">KYC Verification</h1>
+    </div>
+  );
+};
+
+const DocumentRow: React.FC<DocumentRowProps> = ({
+  document,
+  onToggleSelection,
+  onStatusChange,
+}) => {
+  const getStatusColor = (status: string) => {
+    return status === "Approved"
+      ? "text-green-500"
+      : status === "Pending"
+      ? "text-yellow-500"
+      : "text-red-500";
   };
+  return (
+    <TableRow>
+      <TableCell className="font-medium p-6">
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={document.selected}
+            onCheckedChange={() => onToggleSelection(document.id)}
+            aria-label={`Select document ${document.id}`}
+          />
+          {document.id}.
+        </div>
+      </TableCell>
+      <TableCell>
+        {document.documentName}
+        <Badge
+          variant="outline"
+          className="bg-green-50 text-green-500 font-normal border-green-500 ml-2">
+          3P Verified
+        </Badge>
+      </TableCell>
+      <TableCell>{document.fileName}</TableCell>
+      <TableCell>{document.lastUpdated}</TableCell>
+      <TableCell>
+        <span className={getStatusColor(document.documentStatus)}>
+          {document.documentStatus}
+        </span>
+      </TableCell>
+      <TableCell>
+        <DocumentPreviewDialog
+          document={document}
+          onStatusChange={onStatusChange}
+        />
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const DocumentTable: React.FC<DocumentTableProps> = ({
+  documents,
+  onToggleSelection,
+  onStatusChange,
+}) => {
+  return (
+    <Card>
+      <CardContent className="p-0">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50">
+              <TableHead>Sr. No.</TableHead>
+              <TableHead>Document Name</TableHead>
+              <TableHead>File Name</TableHead>
+              <TableHead>Last Updated</TableHead>
+              <TableHead>Document Status</TableHead>
+              <TableHead>Preview/Verify</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {documents.map((document) => (
+              <DocumentRow
+                key={document.id}
+                document={document}
+                onToggleSelection={onToggleSelection}
+                onStatusChange={onStatusChange}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+};
+
+interface SubmitButtonProps {
+  isAllApproved: boolean;
+  isSubmitted: boolean;
+  onSubmit: () => void;
+}
+
+const SubmitButton: React.FC<SubmitButtonProps> = ({
+  isAllApproved,
+  isSubmitted,
+  onSubmit,
+}) => {
+  if (!isAllApproved) return null;
+
+  return (
+    <div className="flex justify-end">
+      <Button
+        size="lg"
+        className={clsx(
+          "mt-6 mr-2",
+          isSubmitted
+            ? "bg-green-600 hover:bg-green-500"
+            : "bg-blue-800 hover:bg-blue-700"
+        )}
+        onClick={!isSubmitted ? onSubmit : undefined}
+        disabled={isSubmitted}>
+        {isSubmitted ? (
+          <span className="flex items-center">
+            <Check className="mr-1 h-5 w-5" /> Approved
+          </span>
+        ) : (
+          "Submit"
+        )}
+      </Button>
+    </div>
+  );
+};
+
+export default function DocumentManagement(): JSX.Element {
+  const [showSuccessDialog, setShowSuccessDialog] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const { documents, isSubmitted } = useAppSelector((state) => state.documents);
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    if (showSuccessDialog) {
+      timer = setTimeout(() => {
+        setShowSuccessDialog(false);
+        dispatch(setSubmitted(true));
+        if (documents.every((doc) => doc.documentStatus === "Approved")) {
+          dispatch(updateKycStatus());
+        }
+      }, 1000);
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [showSuccessDialog, dispatch, documents]);
+
+  const handleToggleDocumentSelection = (id: number): void => {
+    dispatch(toggleDocumentSelection(id));
+  };
+
+  const handleStatusChange = (id: number, status: string): void => {
+    dispatch(updateDocumentStatus({ id, status }));
+  };
+
+  const handleSubmit = (): void => {
+    setShowSuccessDialog(true);
+  };
+
+  const isAllApproved = documents.every(
+    (doc) => doc.documentStatus === "Approved"
+  );
 
   return (
     <DashboardPage className="bg-white p-4 rounded-md">
-      <div className="flex items-center mb-8 gap-3">
-        <h1 className="font-bold">KYC Verification</h1>
-      </div>
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50">
-                <TableHead>Sr. No.</TableHead>
-                <TableHead>Document Name</TableHead>
-                <TableHead>File Name</TableHead>
-                <TableHead>Last Updated</TableHead>
-                <TableHead>Document Status</TableHead>
-                <TableHead>Preview/Verify</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {documents.map((document) => (
-                <TableRow key={document.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        checked={document.selected}
-                        onCheckedChange={() =>
-                          toggleDocumentSelection(document.id)
-                        }
-                        aria-label={`Select document ${document.id}`}
-                      />
-                      {document.id}.
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {document.documentName}
-                    <Badge
-                      variant="outline"
-                      className="bg-green-50 text-green-500 font-normal border-green-500 ml-1">
-                      3P Verified
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{document.fileName}</TableCell>
-                  <TableCell>{document.lastUpdated}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`${
-                        document.documentStatus === "Approved"
-                          ? "text-green-500"
-                          : document.documentStatus === "Pending"
-                          ? "text-yellow-500"
-                          : "text-red-500"
-                      }`}>
-                      {document.documentStatus}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <DocumentPreviewDialog document={document} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <DocumentHeader />
+
+      <DocumentTable
+        documents={documents}
+        onToggleSelection={handleToggleDocumentSelection}
+        onStatusChange={handleStatusChange}
+      />
+
+      <SubmitButton
+        isAllApproved={isAllApproved}
+        isSubmitted={isSubmitted}
+        onSubmit={handleSubmit}
+      />
+
+      <SuccessDialog
+        open={showSuccessDialog}
+        onOpenChange={setShowSuccessDialog}
+      />
     </DashboardPage>
   );
 }

@@ -8,19 +8,101 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
+import { Loader2, SquareArrowOutUpRight } from "lucide-react";
 import murli_pan from "/murli_pan.jpg";
 
-interface DocumentPreviewDialogProps {
-  document: {
-    fileName: string;
-    documentNo?: string;
-    documentStatus?: string;
-  };
+interface Document {
+  id: number;
+  fileName: string;
+  documentNo?: string;
+  documentStatus?: string;
 }
+
+interface DocumentPreviewDialogProps {
+  document: Document;
+  onStatusChange: (id: number, status: string) => void;
+}
+
+interface DocumentDetail {
+  label: string;
+  value: string;
+}
+
+interface ActionButtonsProps {
+  isApproving: boolean;
+  isRejecting: boolean;
+  handleApprove: () => void;
+  handleReject: () => void;
+}
+
+const DocumentDetails: React.FC<{ details: DocumentDetail[] }> = ({
+  details,
+}) => (
+  <div className="space-y-4">
+    {details.map((item, index) => (
+      <div key={index} className="flex items-baseline">
+        <h3 className="font-semibold text-sm">{item.label} :</h3>
+        <span className="ml-1 text-gray-500 text-sm">{item.value}</span>
+      </div>
+    ))}
+  </div>
+);
+
+const DocumentImage: React.FC = () => (
+  <div className="bg-gray-50 p-6 min-h-[400px] flex items-center justify-center">
+    <img
+      src={murli_pan}
+      alt="Document"
+      className="w-full h-full object-cover"
+    />
+  </div>
+);
+
+const ActionButtons: React.FC<ActionButtonsProps> = ({
+  isApproving,
+  isRejecting,
+  handleApprove,
+  handleReject,
+}) => (
+  <div className="p-6 flex justify-center gap-4">
+    <Select disabled={isRejecting} onValueChange={handleReject}>
+      <SelectTrigger className="w-28 border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600">
+        {isRejecting ? (
+          <div className="flex items-center">
+            Rejecting...
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          </div>
+        ) : (
+          <SelectValue placeholder="Reject" />
+        )}
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="aadhar_mismatch">Aadhar Number Mismatch</SelectItem>
+        <SelectItem value="invalid_image">Invalid Image</SelectItem>
+        <SelectItem value="original_colored_aadhar">
+          Original-Colored Aadhar Not Submitted
+        </SelectItem>
+      </SelectContent>
+    </Select>
+    <Button
+      className="bg-green-500 text-white hover:bg-green-600"
+      onClick={handleApprove}
+      disabled={isApproving}>
+      {isApproving ? (
+        <>
+          Approving...
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        </>
+      ) : (
+        "Approve"
+      )}
+    </Button>
+  </div>
+);
 
 export function DocumentPreviewDialog({
   document,
+  onStatusChange,
 }: DocumentPreviewDialogProps) {
   const [open, setOpen] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
@@ -28,24 +110,21 @@ export function DocumentPreviewDialog({
 
   const handleApprove = async () => {
     setIsApproving(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setOpen(false);
-    } finally {
-      setIsApproving(false);
-    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    onStatusChange(document.id, "Approved");
+    setOpen(false);
+    setIsApproving(false);
   };
 
   const handleReject = async () => {
     setIsRejecting(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setOpen(false);
-    } finally {
-      setIsRejecting(false);
-    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    onStatusChange(document.id, "Rejected");
+    setOpen(false);
+    setIsRejecting(false);
   };
-  const previewDocumentDetails = [
+
+  const previewDocumentDetails: DocumentDetail[] = [
     { label: "Document Name", value: document?.fileName ?? "AADHAR_FRONT" },
     { label: "Document No", value: document?.documentNo ?? "544785115278" },
     { label: "Document Status", value: document?.documentStatus ?? "Pending" },
@@ -54,72 +133,21 @@ export function DocumentPreviewDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-50 text-blue-400 hover:text-white hover:bg-blue-400">
-          Preview & Verify
-        </Button>
+        <span className="flex text-blue-500 cursor-pointer">
+          View <SquareArrowOutUpRight className="ml-2 size-4 text-blue-500" />
+        </span>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden">
         <div className="p-6">
-          <div className="space-y-4">
-            <div className="flex flex-col gap-2">
-              {previewDocumentDetails.map((item, index) => (
-                <div key={index} className="flex items-baseline">
-                  <h3 className="font-semibold text-sm">{item.label} :</h3>
-                  <span className="ml-1 text-gray-500 text-sm">
-                    {item.value}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <DocumentDetails details={previewDocumentDetails} />
         </div>
-
-        <div className="bg-gray-50 p-6 min-h-[400px] flex items-center justify-center">
-          <div className="w-full h-full">
-            <img
-              src={murli_pan}
-              alt=""
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </div>
-        <div className="p-6 flex justify-center gap-4">
-          <Select disabled={isRejecting} onValueChange={() => handleReject()}>
-            <SelectTrigger className="w-28 border-red-500 text-red-500 hover:bg-red-50 hover:text-red-600">
-              {isRejecting ? (
-                <div className="flex items-center">
-                  Rejecting...
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                </div>
-              ) : (
-                <SelectValue placeholder="Reject" />
-              )}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="aadhar_mismatch">
-                Aadhar Number Mismatch
-              </SelectItem>
-              <SelectItem value="Invalid Image">Invalid Image</SelectItem>
-              <SelectItem value="Original-Colored Adhar Not Submitted">
-                Original-Colored Adhar Not Submitted
-              </SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Button
-            className="bg-green-500 text-white hover:bg-green-600"
-            onClick={handleApprove}
-            disabled={isApproving}>
-            {isApproving ? (
-              <>
-                Approving...
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              </>
-            ) : (
-              "Approve"
-            )}
-          </Button>
-        </div>
+        <DocumentImage />
+        <ActionButtons
+          isApproving={isApproving}
+          isRejecting={isRejecting}
+          handleApprove={handleApprove}
+          handleReject={handleReject}
+        />
       </DialogContent>
     </Dialog>
   );

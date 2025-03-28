@@ -9,10 +9,114 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Filter } from "lucide-react";
-import { kycData, kycHeadData } from "@/lib/const";
+import { kycHeadData } from "@/lib/const";
 import { Link } from "react-router-dom";
+import { useAppSelector, useAppDispatch } from "@/components/store/Hooks";
+import { setCurrentCustomerId } from "@/components/store/KycSlice";
+import { useEffect } from "react";
+import clsx from "clsx";
+
+interface KYCRecord {
+  id: string;
+  firstName: string;
+  lastName: string;
+  completionDate: string;
+  doneByEmail: string;
+  doneByPhone: string;
+  kycStatus: string;
+  csbStatus: string;
+  lastVerificationDate: string;
+  verifiedBy: string;
+}
+
+const StatusIndicator: React.FC<{ status: string }> = ({ status }) => {
+  const statusClass = clsx({
+    "text-green-500": status === "Done",
+    "text-yellow-500": status === "Pending",
+    "text-red-500": status !== "Done" && status !== "Pending",
+  });
+  return <span className={statusClass}>{status}</span>;
+};
+
+const KYCRow: React.FC<{
+  record: KYCRecord;
+  onViewClick: (id: string) => void;
+}> = ({ record, onViewClick }) => (
+  <TableRow>
+    <TableCell className="max-w-20 truncate text-xs">{record.id}</TableCell>
+    <TableCell className="max-w-20 truncate text-xs">
+      {record.firstName}
+      <br />
+      {record.lastName}
+    </TableCell>
+    <TableCell className="max-w-24 truncate text-xs">
+      {record.completionDate}
+    </TableCell>
+    <TableCell className="max-w-48 truncate text-xs">
+      {record.doneByEmail}
+      <br />
+      {record.doneByPhone}
+    </TableCell>
+    <TableCell className="max-w-20 truncate text-xs">
+      <StatusIndicator status={record.kycStatus} />
+    </TableCell>
+    <TableCell className="max-w-20 truncate text-xs">
+      <StatusIndicator status={record.csbStatus} />
+    </TableCell>
+    <TableCell className="max-w-20 truncate text-xs">
+      {record.lastVerificationDate}
+    </TableCell>
+    <TableCell className="max-w-64 truncate text-xs">
+      {record.verifiedBy}
+    </TableCell>
+    <TableCell className="text-right">
+      <Link to="/verification-history">
+        <Button
+          onClick={() => onViewClick(record.id)}
+          className="bg-blue-50 text-blue-400 hover:text-white hover:bg-blue-400">
+          View
+        </Button>
+      </Link>
+    </TableCell>
+  </TableRow>
+);
+
+const KYCTable: React.FC<{
+  records: KYCRecord[];
+  onViewClick: (id: string) => void;
+}> = ({ records, onViewClick }) => (
+  <Table>
+    <TableHeader>
+      <TableRow>
+        {kycHeadData.map((header, index) => (
+          <TableHead
+            key={index}
+            className="text-black font-semibold whitespace-nowrap">
+            {header}
+          </TableHead>
+        ))}
+      </TableRow>
+    </TableHeader>
+    <TableBody>
+      {records.map((record) => (
+        <KYCRow key={record.id} record={record} onViewClick={onViewClick} />
+      ))}
+    </TableBody>
+  </Table>
+);
 
 export default function BusinessKYCVerification() {
+  const kycData = useAppSelector((state) => state.kyc.records as KYCRecord[]);
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (kycData.length > 0) dispatch(setCurrentCustomerId(kycData[0].id));
+  }, [dispatch, kycData]);
+
+  const handleViewClick = (id: string) => {
+    dispatch(setCurrentCustomerId(id));
+  };
+
   return (
     <DashboardPage className="bg-white p-4 rounded-md">
       <div className="flex items-center mb-8 gap-3">
@@ -24,76 +128,7 @@ export default function BusinessKYCVerification() {
           Filters
         </Button>
       </div>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            {kycHeadData.map((header, index) => (
-              <TableHead
-                key={index}
-                className="text-black font-semibold whitespace-nowrap">
-                {header}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {kycData.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell className="max-w-20 truncate text-xs">
-                {item.id}
-              </TableCell>
-              <TableCell className="max-w-20 truncate text-xs">
-                {item.firstName}
-                <br />
-                {item.lastName}
-              </TableCell>
-              <TableCell className="max-w-24 truncate text-xs">
-                {item.completionDate}
-              </TableCell>
-              <TableCell className="max-w-48 truncate text-xs">
-                {item.doneByEmail}
-                <br />
-                {item.doneByPhone}
-              </TableCell>
-              <TableCell className="max-w-20 truncate text-xs">
-                <span
-                  className={`${
-                    item.kycStatus === "Done"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}>
-                  {item.kycStatus}
-                </span>
-              </TableCell>
-              <TableCell className="max-w-20 truncate text-xs">
-                <span
-                  className={`${
-                    item.csbStatus === "Done"
-                      ? "text-green-500"
-                      : "text-red-500"
-                  }`}>
-                  {item.csbStatus}
-                </span>
-              </TableCell>
-              <TableCell className="max-w-20 truncate text-xs">
-                {item.lastVerificationDate}
-              </TableCell>
-              <TableCell className="max-w-64 truncate text-xs">
-                {item.verifiedBy}
-              </TableCell>
-              <TableCell className="text-right">
-                <Link to="/verification-history">
-                  <Button className="bg-blue-50 text-blue-400 hover:text-white hover:bg-blue-400">
-                    View
-                  </Button>
-                </Link>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <KYCTable records={kycData} onViewClick={handleViewClick} />
     </DashboardPage>
   );
 }

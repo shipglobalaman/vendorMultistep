@@ -9,13 +9,13 @@ import { FormInput } from "@/components/elements/FormInput";
 import { ComboBoxFormField } from "@/components/elements/ComboBoxFormField";
 import { useCountries, useStates } from "@/components/orders/CountryApi";
 import { useSelector, useDispatch } from "react-redux";
-import type { RootState } from "@/components/orders/store/Store";
+import type { RootState } from "@/components/store/Store";
 import {
   setFormData,
   setStep,
   setActiveSection,
   setActiveStep,
-} from "@/components/orders/store/OrderSlice";
+} from "@/components/store/OrderSlice";
 
 export default function BuyerDetail() {
   const dispatch = useDispatch();
@@ -92,7 +92,7 @@ export default function BuyerDetail() {
         value: form.getValues("shippingCountry")?.value || "",
         label: form.getValues("shippingCountry")?.label || "",
       });
-    } 
+    }
   }, [checked, form, shippingAddress]);
 
   return (
