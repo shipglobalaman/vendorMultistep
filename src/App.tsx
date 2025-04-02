@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import PrivateRoutes from "./routes/PrivateRoutes";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
-import { store, persistor } from "@/components/orders/store/Store";
+import { store, persistor } from "@/components/store/Store";
 
 function App() {
   const router = createBrowserRouter([PrivateRoutes()]);

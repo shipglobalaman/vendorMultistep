@@ -7,7 +7,7 @@ import ConsignorDetails from "./ConsignorDetails";
 import ShowDetail from "./ShowDetail";
 import { SectionItem } from "./SectionItem";
 import { useSelector } from "react-redux";
-import type { RootState } from "@/components/orders/store/Store";
+import type { RootState } from "@/components/store/Store";
 import BreadCrumb from "./BreadCrumb";
 
 export type Section = {

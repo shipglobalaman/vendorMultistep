@@ -11,11 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useSelector, useDispatch } from "react-redux";
-import type { RootState } from "@/components/orders/store/Store";
-import {
-  setFormData,
-  setActiveStep,
-} from "@/components/orders/store/OrderSlice";
+import type { RootState } from "@/components/store/Store";
+import { setFormData, setActiveStep } from "@/components/store/OrderSlice";
 import { CircleCheck } from "lucide-react";
 import clsx from "clsx";
 import { fetchAPI } from "./Api";

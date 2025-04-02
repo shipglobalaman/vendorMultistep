@@ -1,18 +1,18 @@
 import { ComboBoxFormField } from "@/components/elements/ComboBoxFormField";
 import { Button } from "../ui/button";
 import type * as z from "zod";
-import { consignorSchema } from "@/zod validation/Schema";
+import { consignorSchema } from "@/zodValidation/Schema";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "@/components/orders/store/Store";
+import type { RootState } from "@/components/store/Store";
 import {
   setFormData,
   setStep,
   setActiveSection,
   setActiveStep,
-} from "@/components/orders/store/OrderSlice";
+} from "@/components/store/OrderSlice";
 
 const addresses = [
   {

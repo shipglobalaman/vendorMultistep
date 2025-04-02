@@ -5,14 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type * as z from "zod";
 import { Plus, Trash2 } from "lucide-react";
 
-import { orderFormSchema } from "@/zod validation/Schema";
-import type { RootState } from "@/components/orders/store/Store";
+import { orderFormSchema } from "@/zodValidation/Schema";
+import type { RootState } from "@/components/store/Store";
 import {
   setFormData,
   setStep,
   setActiveSection,
   setActiveStep,
-} from "@/components/orders/store/OrderSlice";
+} from "@/components/store/OrderSlice";
 
 import { Button } from "@/components/ui/button";
 import {

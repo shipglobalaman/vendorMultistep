@@ -5,7 +5,7 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { useSelector } from "react-redux";
-import type { RootState } from "@/components/orders/store/Store";
+import type { RootState } from "@/components/store/Store";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import boxPng from "/boxPng.png";
@@ -14,7 +14,7 @@ import {
   formSchema,
   orderFormSchema,
   itemSchema,
-} from "@/zod validation/Schema";
+} from "@/zodValidation/Schema";
 
 const ShowDetail = () => {
   const formData = useSelector((state: RootState) => state.order);
@@ -205,7 +205,7 @@ const ItemDetails = ({
           <div className="flex justify-between items-center mt-4">
             {!showAll && (
               <p className="text-orange-400 text-xs font-semibold">
-                +{items.length-1} more products...
+                +{items.length - 1} more products...
               </p>
             )}
             <button
