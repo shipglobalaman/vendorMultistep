@@ -110,7 +110,10 @@ const KYCTable: React.FC<{
 
 export default function BusinessKYCVerification() {
   const IndividualKycData = useAppSelector(
-    (state) => state.kyc.records as KYCRecord[]
+    (state) => state.kyc.individualRecords as KYCRecord[]
+  );
+  const BusinessKycData = useAppSelector(
+    (state) => state.kyc.businessRecords as KYCRecord[]
   );
   const dispatch = useAppDispatch();
 
@@ -150,6 +153,23 @@ export default function BusinessKYCVerification() {
               </div>
               <KYCTable
                 records={IndividualKycData}
+                onViewClick={handleViewClick}
+              />
+            </div>
+          </TabsContent>
+          <TabsContent value="business">
+            <div className="p-4 border rounded-md">
+              <div className="flex items-center py-2 pb-4 gap-3">
+                <h1 className="font-bold">Business KYC Verification</h1>
+                <Button
+                  variant="outline"
+                  className="bg-blue-800 text-white border-none gap-2 hover:bg-blue-700 hover:text-white">
+                  <Filter className="h-4 w-4" />
+                  Filters
+                </Button>
+              </div>
+              <KYCTable
+                records={BusinessKycData}
                 onViewClick={handleViewClick}
               />
             </div>

@@ -139,27 +139,27 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
   onSubmit,
 }) => {
   return (
-    <div className="flex justify-end">
-      <Button
-        size="lg"
-        className={clsx(
-          "mt-6 mr-20",
-          isSubmitted
-            ? "bg-green-600 hover:bg-green-500"
-            : isAllApproved
-            ? "bg-blue-800 hover:bg-blue-700"
-            : "bg-gray-400 cursor-not-allowed"
-        )}
-        onClick={!isSubmitted && isAllApproved ? onSubmit : () => {}}
-        disabled={!isAllApproved || isSubmitted}>
-        {isSubmitted ? (
+    <div className="flex justify-end mt-8">
+      {!isSubmitted ? (
+        <Button
+          size="lg"
+          className={clsx(
+            "mr-20",
+            isAllApproved
+              ? "bg-blue-800 hover:bg-blue-700"
+              : "bg-gray-400 cursor-not-allowed"
+          )}
+          onClick={isAllApproved ? onSubmit : () => {}}
+          disabled={!isAllApproved}>
+          Submit
+        </Button>
+      ) : (
+        <Button className="mr-20 bg-green-600 hover:bg-green-500" disabled>
           <span className="flex items-center">
             <Check className="mr-1 h-5 w-5" /> Approved
           </span>
-        ) : (
-          "Submit"
-        )}
-      </Button>
+        </Button>
+      )}
     </div>
   );
 };
@@ -191,7 +191,9 @@ const VerificationHistory = () => {
   return (
     <div className="border border-gray-100 p-4 rounded-md">
       <p className="font-semibold text-lg mb-4">KYC Verification History</p>
-      <div><p className="font-normal p-5 text-center">No Data Found</p></div>
+      <div>
+        <p className="font-normal p-5 text-center">No Data Found</p>
+      </div>
     </div>
   );
 };
@@ -253,7 +255,7 @@ export default function DocumentManagement(): JSX.Element {
         </Badge>
       </div>
       <CustomerDetails />
-      <p className="text-sm mt-7 mb-2">
+      <p className="text-sm mt-10 mb-4">
         <span className="text-red-500 font-medium">Please Note: </span>All
         documents must be verified by a third party before proceeding to the
         final verification.

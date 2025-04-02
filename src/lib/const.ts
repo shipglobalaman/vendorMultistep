@@ -37,32 +37,56 @@ export const IndividualKycData = [
   },
 ];
 
-// export const initialdocuments = [
-//   {
-//     id: 1,
-//     documentName: "Aadhar Card",
-//     fileName: "Aadhaar.pdf",
-//     lastUpdated: "Sep 24, 2024",
-//     documentStatus: "Approved",
-//     selected: false,
-//   },
-//   {
-//     id: 2,
-//     documentName: "Bank Details",
-//     fileName: "PassBook.pdf",
-//     lastUpdated: "Sep 24, 2024",
-//     documentStatus: "Pending",
-//     selected: false,
-//   },
-//   {
-//     id: 3,
-//     documentName: "Bank Details",
-//     fileName: "PassBook.pdf",
-//     lastUpdated: "Sep 24, 2024",
-//     documentStatus: "Rejected",
-//     selected: false,
-//   },
-// ];
+export const BusinessKycData = [
+  {
+    id: "123",
+    firstName: "firstname_123",
+    lastName: "lastname_566",
+    completionDate: "2022-06-08",
+    doneByEmail: "566@vendorexample.com",
+    doneByPhone: "9999999566",
+    kycStatus: "Pending",
+    csbStatus: "Pending",
+    lastVerificationDate: "2024-10-28",
+    verifiedBy: "neeraj.s@shipglobal.in",
+  },
+  {
+    id: "124",
+    firstName: "firstname_124",
+    lastName: "lastname_566",
+    completionDate: "2022-06-08",
+    doneByEmail: "566@vendorexample.com",
+    doneByPhone: "9999999566",
+    kycStatus: "Pending",
+    csbStatus: "Pending",
+    lastVerificationDate: "2024-10-28",
+    verifiedBy: "neeraj.s@shipglobal.in",
+  },
+  {
+    id: "125",
+    firstName: "firstname_125",
+    lastName: "lastname_566",
+    completionDate: "2022-06-08",
+    doneByEmail: "566@vendorexample.com",
+    doneByPhone: "9999999566",
+    kycStatus: "Pending",
+    csbStatus: "Pending",
+    lastVerificationDate: "2024-10-28",
+    verifiedBy: "neeraj.s@shipglobal.in",
+  },
+  {
+    id: "126",
+    firstName: "firstname_126",
+    lastName: "lastname_566",
+    completionDate: "2022-06-08",
+    doneByEmail: "566@vendorexample.com",
+    doneByPhone: "9999999566",
+    kycStatus: "Pending",
+    csbStatus: "Pending",
+    lastVerificationDate: "2024-10-28",
+    verifiedBy: "neeraj.s@shipglobal.in",
+  },
+];
 
 export const initialdocuments = {
   "566": [
@@ -71,7 +95,7 @@ export const initialdocuments = {
       documentName: "Aadhar Card",
       fileName: "Aadhaar.pdf",
       lastUpdated: "Sep 24, 2024",
-      documentStatus: "Approved",
+      documentStatus: "Pending",
       selected: false,
     },
     {
@@ -87,7 +111,7 @@ export const initialdocuments = {
       documentName: "Bank Details",
       fileName: "PassBook.pdf",
       lastUpdated: "Sep 24, 2024",
-      documentStatus: "Rejected",
+      documentStatus: "Pending",
       selected: false,
     },
   ],
@@ -97,7 +121,7 @@ export const initialdocuments = {
       documentName: "Aadhar Card",
       fileName: "Aadhaar.pdf",
       lastUpdated: "Sep 24, 2024",
-      documentStatus: "Approved",
+      documentStatus: "Pending",
       selected: false,
     },
     {

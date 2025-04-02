@@ -1,25 +1,47 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { IndividualKycData } from "@/lib/const";
+import { IndividualKycData, BusinessKycData } from "@/lib/const";
+
+// interface KycState {
+//   records: {
+//     id: string;
+//     firstName: string;
+//     lastName: string;
+//     completionDate: string;
+//     doneByEmail: string;
+//     doneByPhone: string;
+//     kycStatus: string;
+//     csbStatus: string;
+//     lastVerificationDate: string;
+//     verifiedBy: string;
+//   }[];
+//   currentCustomerId: string | null;
+// }
+
+interface KycRecord {
+  id: string;
+  firstName: string;
+  lastName: string;
+  completionDate: string;
+  doneByEmail: string;
+  doneByPhone: string;
+  kycStatus: string;
+  csbStatus: string;
+  lastVerificationDate: string;
+  verifiedBy: string;
+}
 
 interface KycState {
-  records: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    completionDate: string;
-    doneByEmail: string;
-    doneByPhone: string;
-    kycStatus: string;
-    csbStatus: string;
-    lastVerificationDate: string;
-    verifiedBy: string;
-  }[];
+  individualRecords: KycRecord[];
+  businessRecords: KycRecord[];
   currentCustomerId: string | null;
+  customerType: "individual" | "business";
 }
 
 const initialState: KycState = {
-  records: IndividualKycData,
+  individualRecords: IndividualKycData,
+  businessRecords: BusinessKycData,
   currentCustomerId: "566",
+  customerType: "individual",
 };
 
 export const kycSlice = createSlice({
@@ -31,7 +53,7 @@ export const kycSlice = createSlice({
       action: PayloadAction<{ id: string; status: string }>
     ) => {
       const { id, status } = action.payload;
-      state.records = state.records.map((record) =>
+      state.individualRecords = state.individualRecords.map((record) =>
         record.id === id ? { ...record, csbStatus: status } : record
       );
     },
@@ -41,7 +63,7 @@ export const kycSlice = createSlice({
 
     updateKycStatus: (state) => {
       if (state.currentCustomerId) {
-        state.records = state.records.map((record) =>
+        state.individualRecords = state.individualRecords.map((record) =>
           record.id === state.currentCustomerId
             ? {
                 ...record,
@@ -53,7 +75,7 @@ export const kycSlice = createSlice({
       }
     },
     resetKycData: (state) => {
-      state.records = IndividualKycData;
+      state.individualRecords = IndividualKycData;
     },
   },
 });
