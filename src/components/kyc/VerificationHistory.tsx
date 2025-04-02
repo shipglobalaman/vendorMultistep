@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import DashboardPage from "@/layouts/DashboardPage";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { DocumentPreviewDialog } from "./PreviewDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
@@ -43,14 +43,11 @@ interface DocumentTableProps {
   onToggleSelection: (id: number) => void;
   onStatusChange: (id: number, status: string) => void;
 }
-
-const DocumentHeader: React.FC = () => {
-  return (
-    <div className="flex items-center mb-8 gap-3">
-      <h1 className="font-bold">KYC Verification</h1>
-    </div>
-  );
-};
+interface SubmitButtonProps {
+  isAllApproved: boolean;
+  isSubmitted: boolean;
+  onSubmit: () => void;
+}
 
 const DocumentRow: React.FC<DocumentRowProps> = ({
   document,
@@ -136,31 +133,25 @@ const DocumentTable: React.FC<DocumentTableProps> = ({
   );
 };
 
-interface SubmitButtonProps {
-  isAllApproved: boolean;
-  isSubmitted: boolean;
-  onSubmit: () => void;
-}
-
 const SubmitButton: React.FC<SubmitButtonProps> = ({
   isAllApproved,
   isSubmitted,
   onSubmit,
 }) => {
-  if (!isAllApproved) return null;
-
   return (
     <div className="flex justify-end">
       <Button
         size="lg"
         className={clsx(
-          "mt-6 mr-2",
+          "mt-6 mr-20",
           isSubmitted
             ? "bg-green-600 hover:bg-green-500"
-            : "bg-blue-800 hover:bg-blue-700"
+            : isAllApproved
+            ? "bg-blue-800 hover:bg-blue-700"
+            : "bg-gray-400 cursor-not-allowed"
         )}
-        onClick={!isSubmitted ? onSubmit : undefined}
-        disabled={isSubmitted}>
+        onClick={!isSubmitted && isAllApproved ? onSubmit : () => {}}
+        disabled={!isAllApproved || isSubmitted}>
         {isSubmitted ? (
           <span className="flex items-center">
             <Check className="mr-1 h-5 w-5" /> Approved
@@ -173,10 +164,49 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({
   );
 };
 
+const CustomerDetails = () => {
+  const customerDetails = [
+    { label: "Name", value: "Aman Tripathi" },
+    { label: "Customer Id", value: "12345678" },
+    { label: "Customer Email ID", value: "161@vendorexample.com" },
+    { label: "Customer Mobile No", value: "96518376932" },
+  ];
+
+  return (
+    <div className="w-fit rounded-md border border-gray-100 p-2">
+      <p className="font-semibold text-lg ml-2 mb-2">Customer Details</p>
+      <div className="flex gap-16">
+        {customerDetails.map((detail, index) => (
+          <div key={index} className="m-2 space-y-2">
+            <p className="text-gray-400 text-sm">{detail.label}</p>
+            <p className="text-sm">{detail.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const VerificationHistory = () => {
+  return (
+    <div className="border border-gray-100 p-4 rounded-md">
+      <p className="font-semibold text-lg mb-4">KYC Verification History</p>
+      <div><p className="font-normal p-5 text-center">No Data Found</p></div>
+    </div>
+  );
+};
+
 export default function DocumentManagement(): JSX.Element {
   const [showSuccessDialog, setShowSuccessDialog] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const { documents, isSubmitted } = useAppSelector((state) => state.documents);
+  const { documents, isSubmitted, currentCustomerId } = useAppSelector(
+    (state) => state.documents
+  );
+
+  const finalDocuments = useMemo(
+    () => (currentCustomerId ? documents[currentCustomerId] || [] : []),
+    [currentCustomerId, documents]
+  );
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -184,7 +214,10 @@ export default function DocumentManagement(): JSX.Element {
       timer = setTimeout(() => {
         setShowSuccessDialog(false);
         dispatch(setSubmitted(true));
-        if (documents.every((doc) => doc.documentStatus === "Approved")) {
+        if (
+          finalDocuments &&
+          finalDocuments.every((doc) => doc.documentStatus === "Approved")
+        ) {
           dispatch(updateKycStatus());
         }
       }, 1000);
@@ -192,7 +225,7 @@ export default function DocumentManagement(): JSX.Element {
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [showSuccessDialog, dispatch, documents]);
+  }, [showSuccessDialog, dispatch, finalDocuments]);
 
   const handleToggleDocumentSelection = (id: number): void => {
     dispatch(toggleDocumentSelection(id));
@@ -206,26 +239,41 @@ export default function DocumentManagement(): JSX.Element {
     setShowSuccessDialog(true);
   };
 
-  const isAllApproved = documents.every(
-    (doc) => doc.documentStatus === "Approved"
-  );
+  const isAllApproved =
+    finalDocuments &&
+    finalDocuments.length > 0 &&
+    finalDocuments.every((doc) => doc.documentStatus === "Approved");
 
   return (
     <DashboardPage className="bg-white p-4 rounded-md">
-      <DocumentHeader />
-
-      <DocumentTable
-        documents={documents}
-        onToggleSelection={handleToggleDocumentSelection}
-        onStatusChange={handleStatusChange}
-      />
-
-      <SubmitButton
-        isAllApproved={isAllApproved}
-        isSubmitted={isSubmitted}
-        onSubmit={handleSubmit}
-      />
-
+      <div className="flex items-center mb-4 gap-2">
+        <p className="font-bold text-xl">KYC</p>
+        <Badge className="bg-yellow-50 text-yellow-500 border-yellow-500 rounded-full">
+          Pending
+        </Badge>
+      </div>
+      <CustomerDetails />
+      <p className="text-sm mt-7 mb-2">
+        <span className="text-red-500 font-medium">Please Note: </span>All
+        documents must be verified by a third party before proceeding to the
+        final verification.
+      </p>
+      <div className="border border-gray-100 p-4 rounded-md mb-4">
+        <p className="font-semibold text-lg mb-4">
+          Individual KYC Verification
+        </p>
+        <DocumentTable
+          documents={finalDocuments}
+          onToggleSelection={handleToggleDocumentSelection}
+          onStatusChange={handleStatusChange}
+        />
+        <SubmitButton
+          isAllApproved={isAllApproved}
+          isSubmitted={isSubmitted}
+          onSubmit={handleSubmit}
+        />
+      </div>
+      <VerificationHistory />
       <SuccessDialog
         open={showSuccessDialog}
         onOpenChange={setShowSuccessDialog}

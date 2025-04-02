@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import {
   Select,
@@ -8,8 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, SquareArrowOutUpRight } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import murli_pan from "/murli_pan.jpg";
+import LoadingButton from "../elements/LoadingButton";
+import { Button } from "../ui/button";
 
 interface Document {
   id: number;
@@ -84,19 +85,13 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         </SelectItem>
       </SelectContent>
     </Select>
-    <Button
-      className="bg-green-500 text-white hover:bg-green-600"
+    <LoadingButton
+      isLoading={isApproving}
       onClick={handleApprove}
-      disabled={isApproving}>
-      {isApproving ? (
-        <>
-          Approving...
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        </>
-      ) : (
-        "Approve"
-      )}
-    </Button>
+      label="Approve"
+      loadingLabel="Approving..."
+      className="bg-green-500 text-white hover:bg-green-600"
+    />
   </div>
 );
 
@@ -133,9 +128,11 @@ export function DocumentPreviewDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <span className="flex text-blue-500 cursor-pointer">
-          View <SquareArrowOutUpRight className="ml-2 size-4 text-blue-500" />
-        </span>
+        <Button
+          size="sm"
+          className="bg-blue-800 text-white hover:text-white hover:bg-blue-700">
+          Preview & Verify
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden">
         <div className="p-6">

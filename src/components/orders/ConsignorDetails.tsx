@@ -1,7 +1,7 @@
 import { ComboBoxFormField } from "@/components/elements/ComboBoxFormField";
 import { Button } from "../ui/button";
 import type * as z from "zod";
-import { consignorSchema } from "@/zod validation/Schema";
+import { consignorSchema } from "@/zodValidation/Schema";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";

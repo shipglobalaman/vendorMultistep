@@ -10,7 +10,7 @@ export const kycHeadData = [
   "Actions",
 ];
 
-export const kycData = [
+export const IndividualKycData = [
   {
     id: "566",
     firstName: "firstname_566dxfcgvhjdfcgvhujgvhbj",
@@ -37,34 +37,34 @@ export const kycData = [
   },
 ];
 
-export const initialdocuments = [
-  {
-    id: 1,
-    documentName: "Aadhar Card",
-    fileName: "Aadhaar.pdf",
-    lastUpdated: "Sep 24, 2024",
-    documentStatus: "Approved",
-    selected: false,
-  },
-  {
-    id: 2,
-    documentName: "Bank Details",
-    fileName: "PassBook.pdf",
-    lastUpdated: "Sep 24, 2024",
-    documentStatus: "Pending",
-    selected: false,
-  },
-  {
-    id: 3,
-    documentName: "Bank Details",
-    fileName: "PassBook.pdf",
-    lastUpdated: "Sep 24, 2024",
-    documentStatus: "Rejected",
-    selected: false,
-  },
-];
+// export const initialdocuments = [
+//   {
+//     id: 1,
+//     documentName: "Aadhar Card",
+//     fileName: "Aadhaar.pdf",
+//     lastUpdated: "Sep 24, 2024",
+//     documentStatus: "Approved",
+//     selected: false,
+//   },
+//   {
+//     id: 2,
+//     documentName: "Bank Details",
+//     fileName: "PassBook.pdf",
+//     lastUpdated: "Sep 24, 2024",
+//     documentStatus: "Pending",
+//     selected: false,
+//   },
+//   {
+//     id: 3,
+//     documentName: "Bank Details",
+//     fileName: "PassBook.pdf",
+//     lastUpdated: "Sep 24, 2024",
+//     documentStatus: "Rejected",
+//     selected: false,
+//   },
+// ];
 
-export const vendorDocuments = {
+export const initialdocuments = {
   "566": [
     {
       id: 1,

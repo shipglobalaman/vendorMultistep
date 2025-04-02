@@ -14,7 +14,7 @@ import {
   formSchema,
   orderFormSchema,
   itemSchema,
-} from "@/zod validation/Schema";
+} from "@/zodValidation/Schema";
 
 const ShowDetail = () => {
   const formData = useSelector((state: RootState) => state.order);

@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type * as z from "zod";
 import { Plus, Trash2 } from "lucide-react";
 
-import { orderFormSchema } from "@/zod validation/Schema";
+import { orderFormSchema } from "@/zodValidation/Schema";
 import type { RootState } from "@/components/store/Store";
 import {
   setFormData,

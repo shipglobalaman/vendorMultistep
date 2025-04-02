@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { kycData } from "@/lib/const";
+import { IndividualKycData } from "@/lib/const";
 
 interface KycState {
   records: {
@@ -18,7 +18,7 @@ interface KycState {
 }
 
 const initialState: KycState = {
-  records: kycData,
+  records: IndividualKycData,
   currentCustomerId: "566",
 };
 
@@ -53,7 +53,7 @@ export const kycSlice = createSlice({
       }
     },
     resetKycData: (state) => {
-      state.records = kycData;
+      state.records = IndividualKycData;
     },
   },
 });

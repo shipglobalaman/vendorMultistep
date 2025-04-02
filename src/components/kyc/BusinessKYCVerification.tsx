@@ -8,11 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Filter } from "lucide-react";
 import { kycHeadData } from "@/lib/const";
 import { Link } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/components/store/Hooks";
 import { setCurrentCustomerId } from "@/components/store/KycSlice";
+import { setCurrentCustomerId as setDocumentCustomerId } from "@/components/store/DocumentSlice";
 import { useEffect } from "react";
 import clsx from "clsx";
 
@@ -39,41 +41,42 @@ const StatusIndicator: React.FC<{ status: string }> = ({ status }) => {
 };
 
 const KYCRow: React.FC<{
-  record: KYCRecord;
+  kycrecord: KYCRecord;
   onViewClick: (id: string) => void;
-}> = ({ record, onViewClick }) => (
+}> = ({ kycrecord, onViewClick }) => (
   <TableRow>
-    <TableCell className="max-w-20 truncate text-xs">{record.id}</TableCell>
+    <TableCell className="max-w-20 truncate text-xs">{kycrecord.id}</TableCell>
     <TableCell className="max-w-20 truncate text-xs">
-      {record.firstName}
+      {kycrecord.firstName}
       <br />
-      {record.lastName}
+      {kycrecord.lastName}
     </TableCell>
     <TableCell className="max-w-24 truncate text-xs">
-      {record.completionDate}
+      {kycrecord.completionDate}
     </TableCell>
     <TableCell className="max-w-48 truncate text-xs">
-      {record.doneByEmail}
+      {kycrecord.doneByEmail}
       <br />
-      {record.doneByPhone}
+      {kycrecord.doneByPhone}
     </TableCell>
     <TableCell className="max-w-20 truncate text-xs">
-      <StatusIndicator status={record.kycStatus} />
+      <StatusIndicator status={kycrecord.kycStatus} />
     </TableCell>
     <TableCell className="max-w-20 truncate text-xs">
-      <StatusIndicator status={record.csbStatus} />
+      <StatusIndicator status={kycrecord.csbStatus} />
     </TableCell>
     <TableCell className="max-w-20 truncate text-xs">
-      {record.lastVerificationDate}
+      {kycrecord.lastVerificationDate}
     </TableCell>
     <TableCell className="max-w-64 truncate text-xs">
-      {record.verifiedBy}
+      {kycrecord.verifiedBy}
     </TableCell>
     <TableCell className="text-right">
       <Link to="/verification-history">
         <Button
-          onClick={() => onViewClick(record.id)}
-          className="bg-blue-50 text-blue-400 hover:text-white hover:bg-blue-400">
+          onClick={() => onViewClick(kycrecord.id)}
+          size="sm"
+          className="bg-blue-800 text-white hover:text-white hover:bg-blue-700">
           View
         </Button>
       </Link>
@@ -99,36 +102,60 @@ const KYCTable: React.FC<{
     </TableHeader>
     <TableBody>
       {records.map((record) => (
-        <KYCRow key={record.id} record={record} onViewClick={onViewClick} />
+        <KYCRow key={record.id} kycrecord={record} onViewClick={onViewClick} />
       ))}
     </TableBody>
   </Table>
 );
 
 export default function BusinessKYCVerification() {
-  const kycData = useAppSelector((state) => state.kyc.records as KYCRecord[]);
+  const IndividualKycData = useAppSelector(
+    (state) => state.kyc.records as KYCRecord[]
+  );
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (kycData.length > 0) dispatch(setCurrentCustomerId(kycData[0].id));
-  }, [dispatch, kycData]);
+    if (IndividualKycData.length > 0) {
+      dispatch(setCurrentCustomerId(IndividualKycData[0].id));
+      dispatch(setDocumentCustomerId(IndividualKycData[0].id));
+    }
+  }, [dispatch, IndividualKycData]);
 
   const handleViewClick = (id: string) => {
     dispatch(setCurrentCustomerId(id));
+    dispatch(setDocumentCustomerId(id));
   };
 
   return (
-    <DashboardPage className="bg-white p-4 rounded-md">
-      <div className="flex items-center mb-8 gap-3">
-        <h1 className="font-bold">Business KYC Verification</h1>
-        <Button
-          variant="outline"
-          className="bg-blue-50 text-blue-500 border-none gap-2">
-          <Filter className="h-4 w-4" />
-          Filters
-        </Button>
+    <DashboardPage>
+      <h1 className="font-bold text-xl mb-4">KYC Verification</h1>
+      <div className="bg-white p-4 rounded-md">
+        <Tabs defaultValue="individual" className="mb-9">
+          <TabsList className="grid grid-cols-3 w-96 mb-5">
+            <TabsTrigger value="individual">Individual</TabsTrigger>
+            <TabsTrigger value="business">Business</TabsTrigger>
+            <TabsTrigger value="upcominglut">Upcoming LUT</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="individual">
+            <div className="p-4 border rounded-md">
+              <div className="flex items-center py-2 pb-4 gap-3">
+                <h1 className="font-bold">Individual KYC Verification</h1>
+                <Button
+                  variant="outline"
+                  className="bg-blue-800 text-white border-none gap-2 hover:bg-blue-700 hover:text-white">
+                  <Filter className="h-4 w-4" />
+                  Filters
+                </Button>
+              </div>
+              <KYCTable
+                records={IndividualKycData}
+                onViewClick={handleViewClick}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
-      <KYCTable records={kycData} onViewClick={handleViewClick} />
     </DashboardPage>
   );
 }

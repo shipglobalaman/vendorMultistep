@@ -4,7 +4,7 @@ import type {
   formSchema,
   orderFormSchema,
   consignorSchema,
-} from "@/zod validation/Schema";
+} from "@/zodValidation/Schema";
 
 type FormData = z.infer<typeof formSchema> &
   z.infer<typeof consignorSchema> &
